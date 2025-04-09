@@ -47,7 +47,7 @@ class AuthController extends GetxController {
           backgroundColor: Colors.green,
         );
 
-        Get.to(() => MenuScreen());
+        Get.off(() => HomeScreen());
       } else {
         Get.snackbar(
           "Error",

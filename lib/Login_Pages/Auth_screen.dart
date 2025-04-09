@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../All_custom_widgets/BackGround_Custom.dart';
 import '../Colors/App_Colors.dart';
 import '../Controller/Auth_Controller.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -43,7 +42,7 @@ class _SignUpState extends State<SignUp> {
                       padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
-                        color: ColorConst.white.withOpacity(0.95),
+                        color: ColorConst.white.withAlpha((0.95 * 255).toInt()),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

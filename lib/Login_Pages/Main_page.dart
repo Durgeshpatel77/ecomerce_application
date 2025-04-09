@@ -2,10 +2,9 @@ import 'package:ecomerce_application/Mainpage_Subpages/Taskdetail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../Controller/Auth_Controller.dart';
 import 'Auth_screen.dart';
 
-class MenuScreen extends StatelessWidget {
+class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> menuItems = [
     {'icon': Icons.list_alt, 'text': 'Tasks'},
     {'icon': Icons.notes, 'text': 'Todos'},
@@ -109,9 +108,9 @@ class MenuScreen extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      color: Colors.white.withOpacity(0.12),
+                      color: Colors.white.withAlpha(31), // because 0.12 * 255 ≈ 30.6 → 31
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withAlpha(51), // 0.2 * 255 = 51
                       ),
                       boxShadow: [
                         BoxShadow(
