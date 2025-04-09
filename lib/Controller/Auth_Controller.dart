@@ -37,8 +37,10 @@ class AuthController extends GetxController {
         final data = jsonDecode(response.body);
         final token = data['access_token'];
         final tokenType = data['token_type'];
+        final fullToken = "$tokenType $token";
+
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('access_token', "$tokenType $token");
+        await prefs.setString('access_token', fullToken);
 
         Get.snackbar(
           "Success",
@@ -67,6 +69,14 @@ class AuthController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('access_token');
+  }
+  Future<bool> clearToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.remove('access_token');
   }
 
   @override
