@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../All_custom_widgets/TaskList_Custom.dart';
-import '../Controller/Task_Controller.dart';
+import '../Controller/TaskList_Controller.dart';
 
 class TasklistPage extends StatelessWidget {
   const TasklistPage({super.key});
@@ -15,20 +15,16 @@ class TasklistPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Task Details",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: width * 0.045,
-          ),
+          "Task List",
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        elevation: 0,
+        elevation: 1,
         backgroundColor: Colors.transparent,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.deepPurpleAccent, Colors.indigo],
+              colors: [Color(0xfffceabb), Color(0xfff8b500)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -148,13 +144,13 @@ class TasklistPage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final task = filtered[index];
                       return TasklistCustom(
-                        title: task['title'] ?? '',
-                        subtitle: task['status'] ?? '',
+                        taskname: task['title'] ?? '',
+                        status: task['status'] ?? '',
                         description: task['work_detail'] ?? 'No Description',
                         deadline: task['deadline'] ?? '',
                         priority: task['priority'] ?? '',
                         workType: task['work_type'] ?? '',
-                        repetition: task['repetition'] ?? '',
+                        repetition: task['repetition'] ?? '', taskId: '',
                       );
                     },
                   );

@@ -62,6 +62,29 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
       isLoading(false);
     }
   }
+  Future<Map<String, dynamic>> getTaskDetailById(String taskId) async {
+    final authController = Get.find<AuthController>();
+    final accessToken = await authController.getToken();
+
+    if (accessToken == null || accessToken.isEmpty) {
+      throw Exception("No access token available.");
+    }
+
+    final response = await http.get(
+      Uri.parse('https://inagold.in/api/get_task_details/9321742567757'),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': accessToken, // Make sure it's like: Bearer token
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['data'];
+    } else {
+      throw Exception('Failed to load task details');
+    }
+  }
 
   List<Map<String, dynamic>> get filteredTasks {
     final status = statusTabs[selectedTabIndex.value];

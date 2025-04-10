@@ -27,18 +27,15 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           "App Menu",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        elevation: 0,
+        elevation: 1,
         backgroundColor: Colors.transparent,
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.deepPurpleAccent, Colors.indigo],
+              colors: [Color(0xfffceabb), Color(0xfff8b500)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -49,7 +46,7 @@ class HomeScreen extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.deepPurple.shade200, Colors.indigo.shade400],
+              colors: [Color(0xfffceabb), Color(0xfff8b500)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -59,9 +56,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Profile section
               DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                ),
+                decoration: BoxDecoration(color: Colors.transparent),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -80,10 +75,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     Text(
                       'Lead Manager',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
                   ],
                 ),
@@ -108,30 +100,21 @@ class HomeScreen extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      color: Colors.white.withAlpha(31), // because 0.12 * 255 ≈ 30.6 → 31
+                      color: const Color(0xFFFFF7E6), // soft cream color
                       border: Border.all(
-                        color: Colors.white.withAlpha(51), // 0.2 * 255 = 51
+                        color: Colors.white.withAlpha(
+                          51,
+                        ), // Optional: white border with transparency
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          item['icon'],
-                          size: 26,
-                          color: Colors.white,
-                        ),
+                        Icon(item['icon'], size: 26, color: Colors.black),
                         SizedBox(width: 16),
                         Text(
                           item['text'],
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                           ),
@@ -146,13 +129,6 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.deepPurple.shade100, Colors.white],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
         child: Center(
           child: Text(
             'Select an item from the drawer menu',
