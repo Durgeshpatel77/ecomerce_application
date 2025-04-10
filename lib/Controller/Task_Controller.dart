@@ -2,16 +2,28 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-
 import 'Auth_Controller.dart';
 
-class TaskController extends GetxController {
+class TaskController extends GetxController with GetTickerProviderStateMixin {
   var taskList = <Map<String, dynamic>>[].obs;
   var isLoading = false.obs;
+
+  // Tabs
+  var selectedTabIndex = 0.obs;
+  late TabController tabController;
+
+  final statusTabs = ['not_started', 'in_progress', 'completed'];
 
   @override
   void onInit() {
     super.onInit();
+    tabController = TabController(length: statusTabs.length, vsync: this);
+    tabController.addListener(() {
+      if (tabController.indexIsChanging) {
+        selectedTabIndex.value = tabController.index;
+      }
+    });
+
     fetchTasks();
   }
 
@@ -19,7 +31,6 @@ class TaskController extends GetxController {
     try {
       isLoading(true);
 
-      // Get token from AuthController
       final authController = Get.find<AuthController>();
       final accessToken = await authController.getToken();
 
@@ -50,5 +61,16 @@ class TaskController extends GetxController {
     } finally {
       isLoading(false);
     }
+  }
+
+  List<Map<String, dynamic>> get filteredTasks {
+    final status = statusTabs[selectedTabIndex.value];
+    return taskList.where((task) => task['status'] == status).toList();
+  }
+
+  @override
+  void onClose() {
+    tabController.dispose();
+    super.onClose();
   }
 }

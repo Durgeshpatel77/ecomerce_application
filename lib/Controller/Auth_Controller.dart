@@ -17,6 +17,7 @@ class AuthController extends GetxController {
         "Error",
         "Please enter a valid 6-digit code",
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red
       );
       return;
     }
@@ -52,8 +53,7 @@ class AuthController extends GetxController {
         Get.off(() => HomeScreen());
       } else {
         Get.snackbar(
-          "Error",
-          "Login failed: ${response.statusCode}",
+          "Error", "Login failed Enter Valid Code}",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
         );
