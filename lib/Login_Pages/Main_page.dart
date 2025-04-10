@@ -1,4 +1,4 @@
-import 'package:ecomerce_application/Mainpage_Subpages/Taskdetail_page.dart';
+import 'package:ecomerce_application/Mainpage_Subpages/Tasklist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -95,7 +95,7 @@ class HomeScreen extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     if (item['text'] == 'Tasks') {
-                      Get.to(() => TaskdetailPage());
+                      Get.to(() => TasklistPage());
                     } else if (item['text'] == 'Type of work') {
                       Get.to(() => SignUp());
                     } else {

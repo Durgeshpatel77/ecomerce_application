@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class TaskdetailCustom extends StatelessWidget {
+class TasklistCustom extends StatelessWidget {
   final String title;
   final String subtitle; // This could be status
   final String description;
@@ -11,7 +11,7 @@ class TaskdetailCustom extends StatelessWidget {
   final String workType;
   final String repetition;
 
-  const TaskdetailCustom({
+  const TasklistCustom({
     super.key,
     required this.title,
     required this.subtitle,
@@ -107,6 +107,8 @@ class TaskdetailCustom extends StatelessWidget {
 
               Text(
                 description.capitalizeFirst ?? '',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 13, // reduced from 14
                   color: Colors.black87,
