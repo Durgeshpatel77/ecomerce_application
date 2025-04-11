@@ -2,30 +2,26 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../Controller/TaskDetail_controller.dart';
+import '../Controller/Taskstatus_contoller.dart';
 import '../Controller/TaskList_Controller.dart';
 import '../Mainpage_Subpages/Taskdetail_page.dart';
 
 class TasklistCustom extends StatelessWidget {
-  final String taskId; // <-- Add this line
+  final String taskId;
   final String taskname;
-  final String status; // status
+  final String status;
   final String description;
   final String deadline;
   final String priority;
-  //final String workType;
-  //final String repetition;
 
   const TasklistCustom({
     super.key,
-    required this.taskId, // <-- Add this line
+    required this.taskId,
     required this.taskname,
     required this.status,
     required this.description,
     required this.deadline,
     required this.priority,
-    //required this.workType,
-    //required this.repetition,
   });
 
   LinearGradient getRandomGradient() {
@@ -38,16 +34,13 @@ class TasklistCustom extends StatelessWidget {
       const Color.fromARGB(255, 250, 230, 255),
       const Color.fromARGB(255, 240, 255, 240),
     ];
-
-    Color startColor = colors[random.nextInt(colors.length)];
-    Color endColor = colors[random.nextInt(colors.length)];
-
     return LinearGradient(
-      colors: [startColor, endColor],
+      colors: [colors[random.nextInt(colors.length)], colors[random.nextInt(colors.length)]],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
   }
+
   String _formatDateTime(String? isoString) {
     if (isoString == null || isoString.isEmpty) return '';
     try {
@@ -87,13 +80,11 @@ class TasklistCustom extends StatelessWidget {
 
           try {
             final taskController = Get.find<TaskController>();
-            final result = await taskController.getTaskDetailById(taskId); // returns Map with task + imageUrls
+            final result = await taskController.getTaskDetailById(taskId);
             final fullDetails = result['task'];
             final imageUrls = result['imageUrls'];
 
-            Navigator.pop(context); // dismiss loading
-
-            print("Full Task Details: $fullDetails");
+            Navigator.pop(context);
 
             Get.to(() => TaskDetailPage(
               taskname: fullDetails['title'] ?? '',
@@ -108,15 +99,14 @@ class TasklistCustom extends StatelessWidget {
               assignedTo: (fullDetails['assign_to'] is Map) ? (fullDetails['assign_to']['name'] ?? '') : '',
               departmentName: (fullDetails['department_object'] is Map) ? (fullDetails['department_object']['department_name'] ?? '') : '',
               subdepartments: (fullDetails['sub_departments_names'] ?? '').toString(),
-              taskImages: imageUrls, // already parsed and fixed URLs
+              taskImages: imageUrls,
               notes: List<Map<String, dynamic>>.from(fullDetails['notes'] ?? []),
               createdAt: _formatDateTime(fullDetails['created_at']),
               updatedAt: _formatDateTime(fullDetails['updated_at']),
             ));
           } catch (e) {
-            Navigator.pop(context); // close loader
+            Navigator.pop(context);
             Get.snackbar('Error', 'Failed to load task details');
-            print('Error loading task: $e');
           }
         },
         child: Container(
@@ -147,29 +137,18 @@ class TasklistCustom extends StatelessWidget {
                         color: Colors.black87,
                       ),
                     ),
-                    Spacer(),
-                    _buildInfoChip(
-                      null,
-                      status.replaceAll('_', ' ').capitalizeFirst ?? '',
+                    const Spacer(),
+                    InkWell(
+                      onTap: () => _showStatusDialog(context),
+                      child: _buildInfoChip(null, status.replaceAll('_', ' ').capitalizeFirst ?? ''),
                     ),
                   ],
                 ),
                 Wrap(
                   spacing: 14,
                   children: [
-                    _buildInfoChip(
-                      Icons.calendar_today,
-                      "Deadline: ${deadline.capitalizeFirst ?? ''}",
-                    ),
+                    _buildInfoChip(Icons.calendar_today, "Deadline: ${deadline.capitalizeFirst ?? ''}"),
                     _buildInfoChip(Icons.flag, priority.capitalizeFirst ?? ''),
-                    // _buildInfoChip(
-                    //   Icons.work,
-                    //   "Type: ${workType.capitalizeFirst ?? ''}",
-                    // ),
-                    // _buildInfoChip(
-                    //   Icons.repeat,
-                    //   "Repetition: ${repetition.capitalizeFirst ?? ''}",
-                    // ),
                   ],
                 ),
                 Text(
@@ -196,6 +175,86 @@ class TasklistCustom extends StatelessWidget {
         label,
         style: const TextStyle(fontSize: 12, color: Colors.black87),
       ),
+    );
+  }
+
+  void _showStatusDialog(BuildContext context) async {
+    final TaskStatusController statusController = Get.find<TaskStatusController>();
+    await statusController.fetchStatuses();
+
+    showDialog(
+      context: context,
+      builder: (_) => Obx(() {
+        if (statusController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            'Select Task Status',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: statusController.statusList.isEmpty
+                ? const Text("No statuses found.")
+                : ListView.separated(
+              shrinkWrap: true,
+              itemCount: statusController.statusList.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (_, index) {
+                final status = statusController.statusList[index];
+                final isSelected = statusController.selectedStatus.value?['value'] == status['value'];
+
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+                  leading: Icon(
+                    isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                    color: isSelected ? Colors.blue : Colors.grey,
+                  ),
+                  title: Text(
+                    status['label'] ?? '',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  onTap: () {
+                    statusController.selectedStatus.value = status;
+                  },
+                );
+              },
+            ),
+          ),
+          actionsPadding: const EdgeInsets.only(right: 12, bottom: 10),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    if (statusController.selectedStatus.value != null) {
+                      final selected = statusController.selectedStatus.value!;
+                      print("Selected Status: ${selected['label']} (${selected['value']})");
+
+                      // You can use this selected status in API update here
+                      // Or pass it back to your main screen
+
+                      Navigator.pop(context);
+                    } else {
+                      Get.snackbar("No Selection", "Please select a status");
+                    }
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            ),
+          ],
+        );
+      }),
     );
   }
 }

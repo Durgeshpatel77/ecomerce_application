@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import 'Controller/Auth_Controller.dart';
 import 'Controller/TaskList_Controller.dart';
+import 'Controller/Taskstatus_contoller.dart';
 import 'Controller/http_overrides.dart';
 import 'Splash_Screen.dart';
 
@@ -12,6 +13,7 @@ void main() {
   HttpOverrides.global = MyHttpOverrides(); // Set the override
   Get.put(AuthController()); // before runApp()
   Get.put(TaskController());
+  Get.put(TaskStatusController()); // Initialize it at app start
   runApp(const MyApp());
 }
 

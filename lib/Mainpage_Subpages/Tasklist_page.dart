@@ -149,8 +149,8 @@ class TasklistPage extends StatelessWidget {
                             description: task['work_detail']?.toString() ?? 'No Description',
                             deadline: task['deadline']?.toString() ?? '',
                             priority: task['priority']?.toString() ?? '',
-                          //  workType: task['work_type']?.toString() ?? '',
-                          //  repetition: task['repetition']?.toString() ?? '',
+                          // workType: task['work_type']?.toString() ?? '',
+                          // repetition: task['repetition']?.toString() ?? '',
                             taskId: task['id']?.toString() ?? '',
                           ),
                         );
