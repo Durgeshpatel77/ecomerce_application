@@ -226,7 +226,8 @@ class TaskDetailPage extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: images.length,
         itemBuilder: (context, index) {
-          final imageUrl = images[index]['image_url'];
+          // Check if images is a list of strings (URLs)
+          final imageUrl = images[index]; // Assuming it's a String URL
 
           return GestureDetector(
             onTap: () => _showFullImage(context, imageUrl),

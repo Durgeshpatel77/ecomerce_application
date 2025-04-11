@@ -13,8 +13,8 @@ class TasklistCustom extends StatelessWidget {
   final String description;
   final String deadline;
   final String priority;
-  final String workType;
-  final String repetition;
+  //final String workType;
+  //final String repetition;
 
   const TasklistCustom({
     super.key,
@@ -24,8 +24,8 @@ class TasklistCustom extends StatelessWidget {
     required this.description,
     required this.deadline,
     required this.priority,
-    required this.workType,
-    required this.repetition,
+    //required this.workType,
+    //required this.repetition,
   });
 
   LinearGradient getRandomGradient() {
@@ -87,31 +87,36 @@ class TasklistCustom extends StatelessWidget {
 
           try {
             final taskController = Get.find<TaskController>();
-            final fullDetails = await taskController.getTaskDetailById(taskId); // Replace with actual taskId
+            final result = await taskController.getTaskDetailById(taskId); // returns Map with task + imageUrls
+            final fullDetails = result['task'];
+            final imageUrls = result['imageUrls'];
 
-            Navigator.pop(context);
+            Navigator.pop(context); // dismiss loading
+
+            print("Full Task Details: $fullDetails");
 
             Get.to(() => TaskDetailPage(
-              taskname: fullDetails['title'],
-              status: fullDetails['status'],
-              description: fullDetails['work_detail'],
-              deadline: fullDetails['deadline'],
-              priority: fullDetails['priority'],
-              workType: fullDetails['work_type'],
-              repetition: fullDetails['repetition'],
-              repeatUntil: fullDetails['repeat_until'],
-              createdBy: fullDetails['created_user']['name'],
-              assignedTo: fullDetails['assign_to']['name'],
-              departmentName: fullDetails['department_object']['department_name'],
-              subdepartments: fullDetails['sub_departments_names'] ?? '',
-              taskImages: fullDetails['task_images'] ?? [],
-              notes: fullDetails['notes'] ?? [],
+              taskname: fullDetails['title'] ?? '',
+              status: fullDetails['status'] ?? '',
+              description: fullDetails['work_detail'] ?? '',
+              deadline: fullDetails['deadline'] ?? '',
+              priority: fullDetails['priority'] ?? '',
+              workType: fullDetails['work_type'] ?? '',
+              repetition: fullDetails['repetition'] ?? '',
+              repeatUntil: fullDetails['repeat_until'] ?? '',
+              createdBy: (fullDetails['created_user'] is Map) ? (fullDetails['created_user']['name'] ?? '') : '',
+              assignedTo: (fullDetails['assign_to'] is Map) ? (fullDetails['assign_to']['name'] ?? '') : '',
+              departmentName: (fullDetails['department_object'] is Map) ? (fullDetails['department_object']['department_name'] ?? '') : '',
+              subdepartments: (fullDetails['sub_departments_names'] ?? '').toString(),
+              taskImages: imageUrls, // already parsed and fixed URLs
+              notes: List<Map<String, dynamic>>.from(fullDetails['notes'] ?? []),
               createdAt: _formatDateTime(fullDetails['created_at']),
               updatedAt: _formatDateTime(fullDetails['updated_at']),
             ));
           } catch (e) {
-            Navigator.pop(context);
+            Navigator.pop(context); // close loader
             Get.snackbar('Error', 'Failed to load task details');
+            print('Error loading task: $e');
           }
         },
         child: Container(
@@ -157,14 +162,14 @@ class TasklistCustom extends StatelessWidget {
                       "Deadline: ${deadline.capitalizeFirst ?? ''}",
                     ),
                     _buildInfoChip(Icons.flag, priority.capitalizeFirst ?? ''),
-                    _buildInfoChip(
-                      Icons.work,
-                      "Type: ${workType.capitalizeFirst ?? ''}",
-                    ),
-                    _buildInfoChip(
-                      Icons.repeat,
-                      "Repetition: ${repetition.capitalizeFirst ?? ''}",
-                    ),
+                    // _buildInfoChip(
+                    //   Icons.work,
+                    //   "Type: ${workType.capitalizeFirst ?? ''}",
+                    // ),
+                    // _buildInfoChip(
+                    //   Icons.repeat,
+                    //   "Repetition: ${repetition.capitalizeFirst ?? ''}",
+                    // ),
                   ],
                 ),
                 Text(

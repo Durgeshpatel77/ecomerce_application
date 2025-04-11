@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'Controller/Auth_Controller.dart';
+import 'Controller/TaskList_Controller.dart';
 import 'Controller/http_overrides.dart';
 import 'Splash_Screen.dart';
 
 void main() {
   HttpOverrides.global = MyHttpOverrides(); // Set the override
   Get.put(AuthController()); // before runApp()
+  Get.put(TaskController());
   runApp(const MyApp());
 }
 

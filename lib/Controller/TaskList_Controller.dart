@@ -71,16 +71,35 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
     }
 
     final response = await http.get(
-      Uri.parse('https://inagold.in/api/get_task_details/9321742567757'),
+      Uri.parse('https://inagold.in/api/get_task_details/$taskId'),
       headers: {
         'Accept': 'application/json',
-        'Authorization': accessToken, // Make sure it's like: Bearer token
+        'Authorization': 'Bearer $accessToken', // Add 'Bearer ' prefix
       },
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['data'];
+      final jsonResponse = jsonDecode(response.body);
+      final taskData = jsonResponse['data'];
+
+      // Log full task_images array
+      print("Raw task_images: ${taskData['task_images']}");
+
+      // Extract and fix image URLs
+      final taskImages = taskData['task_images'] as List<dynamic>;
+      final imageUrls = taskImages.map((img) {
+        final rawUrl = img['image_url'] as String;
+        return rawUrl.startsWith('http')
+            ? rawUrl
+            : 'https://inagold.in$rawUrl'; // Prefix if relative
+      }).toList();
+
+      print("Fixed image URLs: $imageUrls");
+
+      return {
+        'task': taskData,
+        'imageUrls': imageUrls,
+      };
     } else {
       throw Exception('Failed to load task details');
     }
