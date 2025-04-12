@@ -139,7 +139,7 @@ class TasklistCustom extends StatelessWidget {
                     ),
                     const Spacer(),
                     InkWell(
-                      onTap: () => _showStatusDialog(context),
+                      onTap: () => _showStatusDialog(context,taskId),
                       child: _buildInfoChip(null, status.replaceAll('_', ' ').capitalizeFirst ?? ''),
                     ),
                   ],
@@ -178,83 +178,105 @@ class TasklistCustom extends StatelessWidget {
     );
   }
 
-  void _showStatusDialog(BuildContext context) async {
-    final TaskStatusController statusController = Get.find<TaskStatusController>();
-    await statusController.fetchStatuses();
+  void _showStatusDialog(BuildContext context, String taskId) {
+    final statusController = Get.find<TaskStatusController>();
+    statusController.fetchStatuses();
 
     showDialog(
       context: context,
-      builder: (_) => Obx(() {
-        if (statusController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
+      builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Text(
-            'Select Task Status',
+            'Change Task Status',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: statusController.statusList.isEmpty
-                ? const Text("No statuses found.")
-                : ListView.separated(
-              shrinkWrap: true,
-              itemCount: statusController.statusList.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (_, index) {
-                final status = statusController.statusList[index];
-                final isSelected = statusController.selectedStatus.value?['value'] == status['value'];
+          content: Obx(() {
+            if (statusController.isLoading.value) {
+              return const SizedBox(
+                height: 80,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
 
-                return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                  leading: Icon(
-                    isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                    color: isSelected ? Colors.blue : Colors.grey,
-                  ),
-                  title: Text(
-                    status['label'] ?? '',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  onTap: () {
-                    statusController.selectedStatus.value = status;
-                  },
-                );
-              },
-            ),
-          ),
-          actionsPadding: const EdgeInsets.only(right: 12, bottom: 10),
+            return SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: statusController.statusList.map((status) {
+                  final isSelected =
+                      statusController.selectedStatus.value?['value'] == status['value'];
+                  return InkWell(
+                    onTap: () {
+                      statusController.selectedStatus.value = status;
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.blue.shade100 : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected ? Colors.blue : Colors.grey.shade300,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            status['label'],
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: isSelected ? Colors.blue : Colors.black87,
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(Icons.check_circle, color: Colors.blue),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            );
+          }),
           actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Close'),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    if (statusController.selectedStatus.value != null) {
-                      final selected = statusController.selectedStatus.value!;
-                      print("Selected Status: ${selected['label']} (${selected['value']})");
-
-                      // You can use this selected status in API update here
-                      // Or pass it back to your main screen
-
-                      Navigator.pop(context);
-                    } else {
-                      Get.snackbar("No Selection", "Please select a status");
-                    }
-                  },
-                  child: const Text('Save'),
-                ),
-              ],
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
+            Obx(() {
+              return ElevatedButton(
+                onPressed: statusController.selectedStatus.value == null
+                    ? null
+                    : () async {
+                  final newStatus = statusController.selectedStatus.value?['value'];
+                  try {
+                    final taskController = Get.find<TaskController>();
+                    final detail = await taskController.getTaskDetailById(taskId);
+                    final correctUuid = detail['task']['uuid'];
+
+                    await statusController.updateTaskStatus(correctUuid);
+                    statusController.updateTaskStatusInUI(correctUuid, newStatus);
+
+                    Navigator.pop(context);
+                  } catch (e) {
+                    Navigator.pop(context);
+                    Get.snackbar("Error", "Failed to update status: $e");
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                child: const Text("Save"),
+              );
+            }),
           ],
         );
-      }),
+      },
     );
   }
 }

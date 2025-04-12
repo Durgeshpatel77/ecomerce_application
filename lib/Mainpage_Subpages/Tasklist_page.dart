@@ -59,7 +59,7 @@ class TasklistPage extends StatelessWidget {
 
                       return TabBar(
                         controller: controller.tabController,
-                        isScrollable: false,
+                        isScrollable: true,
                         dividerColor: Colors.transparent,
                         labelPadding: EdgeInsets.symmetric(horizontal: width * 0.02),
                         labelColor: Colors.white,
@@ -134,27 +134,32 @@ class TasklistPage extends StatelessWidget {
                       return const Center(child: Text("No tasks found"));
                     }
 
-                    return ListView.builder(
-                      itemCount: filtered.length,
-                      itemBuilder: (context, index) {
-                        final task = filtered[index];
-
-                        return GestureDetector(
-                          onTap: () {
-                            Get.toNamed('/TaskDetailPage', arguments: task);
-                          },
-                          child: TasklistCustom(
-                            taskname: task['title']?.toString() ?? 'No Title',
-                            status: task['status']?.toString() ?? 'Unknown',
-                            description: task['work_detail']?.toString() ?? 'No Description',
-                            deadline: task['deadline']?.toString() ?? '',
-                            priority: task['priority']?.toString() ?? '',
-                          // workType: task['work_type']?.toString() ?? '',
-                          // repetition: task['repetition']?.toString() ?? '',
-                            taskId: task['id']?.toString() ?? '',
-                          ),
-                        );
-                      },
+                    return RefreshIndicator(
+                    onRefresh: () async {
+                      await controller.fetchTasks();
+                    },
+                      child: ListView.builder(
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final task = filtered[index];
+                      
+                          return GestureDetector(
+                            onTap: () {
+                              Get.toNamed('/TaskDetailPage', arguments: task);
+                            },
+                            child: TasklistCustom(
+                              taskname: task['title']?.toString() ?? 'No Title',
+                              status: task['status']?.toString() ?? 'Unknown',
+                              description: task['work_detail']?.toString() ?? 'No Description',
+                              deadline: task['deadline']?.toString() ?? '',
+                              priority: task['priority']?.toString() ?? '',
+                            //  workType: task['work_type']?.toString() ?? '',
+                            //  repetition: task['repetition']?.toString() ?? '',
+                              taskId: task['id']?.toString() ?? '',
+                            ),
+                          );
+                        },
+                      ),
                     );
                   }).toList(),
                 ),

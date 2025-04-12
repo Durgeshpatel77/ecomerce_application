@@ -1,23 +1,34 @@
 import 'package:ecomerce_application/Mainpage_Subpages/Tasklist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Auth_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget  {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String userName = 'John Doe';
+  String userEmail = 'johndoe@example.com';
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+  void loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('user_name') ?? 'John Doe';
+      userEmail = prefs.getString('user_email') ?? 'johndoe@example.com';
+    });
+  }
   final List<Map<String, dynamic>> menuItems = [
     {'icon': Icons.list_alt, 'text': 'Tasks'},
     {'icon': Icons.notes, 'text': 'Todos'},
-    {'icon': Icons.assignment, 'text': 'Leave'},
-    {'icon': Icons.calendar_today_outlined, 'text': 'Calendar'},
-    {'icon': Icons.network_cell, 'text': 'Graphs'},
-    {'icon': Icons.apartment, 'text': 'Departments'},
-    {'icon': Icons.work, 'text': 'Type of work'},
-    {'icon': Icons.person, 'text': 'User'},
-    {'icon': Icons.settings, 'text': 'Settings'},
-    {'icon': Icons.download_outlined, 'text': 'DB Download'},
-    {'icon': Icons.file_copy_sharp, 'text': 'File Download'},
-    {'icon': Icons.article, 'text': 'Doc Master'},
+    {'icon': Icons.logout, 'text': 'Logout'},
   ];
 
   @override
@@ -68,7 +79,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Hello, John Doe',
+                      'Hello, $userName',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -76,7 +87,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Lead Manager',
+                        userEmail,
                       style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
                   ],

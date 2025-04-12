@@ -14,10 +14,10 @@ class AuthController extends GetxController {
   void loginApi() async {
     if (codeController.text.length != 6) {
       Get.snackbar(
-        "Error",
-        "Please enter a valid 6-digit code",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red
+          "Error",
+          "Please enter a valid 6-digit code",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red
       );
       return;
     }

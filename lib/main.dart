@@ -13,7 +13,7 @@ void main() {
   HttpOverrides.global = MyHttpOverrides(); // Set the override
   Get.put(AuthController()); // before runApp()
   Get.put(TaskController());
-  Get.put(TaskStatusController()); // Initialize it at app start
+  Get.put(TaskStatusController());
   runApp(const MyApp());
 }
 

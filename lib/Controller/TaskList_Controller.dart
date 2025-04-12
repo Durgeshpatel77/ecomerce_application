@@ -12,7 +12,7 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
   var selectedTabIndex = 0.obs;
   late TabController tabController;
 
-  final statusTabs = ['not_started', 'in_progress', 'completed'];
+  final statusTabs = ['not_started', 'in_progress','done','delayed'];
 
   @override
   void onInit() {
@@ -81,6 +81,7 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       final taskData = jsonResponse['data'];
+      final taskUuid = taskData['uuid']; // <--- Extract this
 
       // Log full task_images array
       print("Raw task_images: ${taskData['task_images']}");
@@ -98,6 +99,7 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
 
       return {
         'task': taskData,
+        'uuid': taskData['uuid'],       // Include this
         'imageUrls': imageUrls,
       };
     } else {
