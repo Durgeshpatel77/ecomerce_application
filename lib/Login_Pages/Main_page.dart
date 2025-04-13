@@ -1,30 +1,16 @@
 import 'package:ecomerce_application/Mainpage_Subpages/Tasklist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'Auth_screen.dart';
+import '../Controller/Auth_Controller.dart';
+import '../Mainpage_Subpages/Logout_page.dart';
 
-class HomeScreen extends StatefulWidget  {
+
+class HomeScreen extends StatelessWidget  {
+  final AuthController userController = Get.put(AuthController());
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
 
-class _HomeScreenState extends State<HomeScreen> {
-  String userName = 'John Doe';
-  String userEmail = 'johndoe@example.com';
-  @override
-  void initState() {
-    super.initState();
-    loadUserData();
-  }
-  void loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userName = prefs.getString('user_name') ?? 'John Doe';
-      userEmail = prefs.getString('user_email') ?? 'johndoe@example.com';
-    });
-  }
   final List<Map<String, dynamic>> menuItems = [
     {'icon': Icons.list_alt, 'text': 'Tasks'},
     {'icon': Icons.notes, 'text': 'Todos'},
@@ -33,15 +19,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    userController.loadUserFromPrefs(); // Load saved user info
+
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(
-          "App Menu",
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text("App Menu", style: const TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         elevation: 1,
         backgroundColor: Colors.transparent,
@@ -67,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              // Profile section
               DrawerHeader(
                 decoration: BoxDecoration(color: Colors.transparent),
                 child: Column(
@@ -78,33 +63,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       backgroundImage: AssetImage('assets/images/images.jpeg'),
                     ),
                     SizedBox(height: 8),
-                    Text(
-                      'Hello, $userName',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                        userEmail,
+                    Obx(() => Text(
+                      userController.userName.value,
+                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                    )),
+                    Obx(() => Text(
+                      userController.userEmail.value,
                       style: TextStyle(color: Colors.white70, fontSize: 14),
-                    ),
+                    )),
                   ],
                 ),
               ),
-
-              // Menu items
               ...menuItems.map((item) {
                 return InkWell(
                   onTap: () {
                     Navigator.pop(context);
                     if (item['text'] == 'Tasks') {
                       Get.to(() => TasklistPage());
-                    } else if (item['text'] == 'Type of work') {
-                      Get.to(() => SignUp());
-                    } else {
-                      print('Tapped on ${item['text']}');
+                    } else if (item['text'] == 'Logout') {
+                      Get.to(()=> LogoutPage());
                     }
                   },
                   borderRadius: BorderRadius.circular(14),
@@ -113,25 +90,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      color: const Color(0xFFFFF7E6), // soft cream color
-                      border: Border.all(
-                        color: Colors.white.withAlpha(
-                          51,
-                        ), // Optional: white border with transparency
-                      ),
+                      color: const Color(0xFFFFF7E6),
+                      border: Border.all(color: Colors.white.withAlpha(51)),
                     ),
                     child: Row(
                       children: [
                         Icon(item['icon'], size: 26, color: Colors.black),
                         SizedBox(width: 16),
-                        Text(
-                          item['text'],
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        Text(item['text'], style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w500)),
                       ],
                     ),
                   ),

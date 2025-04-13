@@ -14,6 +14,7 @@ void main() {
   Get.put(AuthController()); // before runApp()
   Get.put(TaskController());
   Get.put(TaskStatusController());
+
   runApp(const MyApp());
 }
 
