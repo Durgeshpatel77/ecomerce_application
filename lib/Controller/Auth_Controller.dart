@@ -5,13 +5,14 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Login_Pages/Auth_screen.dart';
 import '../Login_Pages/Main_page.dart';
 
 class AuthController extends GetxController {
   final codeController = TextEditingController();
   var isLoading = false.obs;
 
-  // Added: observable variables to hold user info
+  // Observable variables to hold user info
   var userName = ''.obs;
   var userEmail = ''.obs;
 
@@ -43,12 +44,13 @@ class AuthController extends GetxController {
         final token = data['access_token'];
         final tokenType = data['token_type'];
         final fullToken = "$tokenType $token";
-        print("Full Token: $fullToken"); // 👈 Add this line to print token
+        print("Access Token: $token");
+        print("Token Type: $tokenType");
+        print("Full Token: $fullToken");
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('access_token', fullToken);
 
-        // 🔽 Fetch user info from separate API after saving token
         await fetchUserInfo();
 
         Get.snackbar(
@@ -57,12 +59,13 @@ class AuthController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
         );
+        codeController.clear(); // Clear the field here ✅
 
         Get.off(() => HomeScreen());
       } else {
         Get.snackbar(
           "Error",
-          "Login failed Enter Valid Code",
+          "Login failed. Enter a valid code.",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
         );
@@ -80,7 +83,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // 🔽 Added: fetch user info using separate API after login
   Future<void> fetchUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');
@@ -115,6 +117,27 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('access_token');
+    await prefs.remove('user_name');
+    await prefs.remove('user_email');
+
+    userName.value = '';
+    userEmail.value = '';
+
+    print("✅ Logout successful. Token and user data cleared.");
+
+    Get.offAll(() => AuthScreen());
+
+    Get.snackbar(
+      "Logged Out",
+      "You have been logged out successfully.....",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.blue,
+    );
+  }
+
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('access_token');
@@ -125,7 +148,6 @@ class AuthController extends GetxController {
     return prefs.remove('access_token');
   }
 
-  // 🔽 Load user info from shared preferences if already stored
   Future<void> loadUserFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     userName.value = prefs.getString('user_name') ?? '';

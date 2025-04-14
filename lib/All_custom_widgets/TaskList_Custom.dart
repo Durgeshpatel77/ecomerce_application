@@ -201,43 +201,40 @@ class TasklistCustom extends StatelessWidget {
 
             return SizedBox(
               width: double.maxFinite,
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: statusController.statusList.map((status) {
-                  return ElevatedButton(
-                    onPressed: () async {
+                  final isSelected =
+                      statusController.selectedStatus.value?['value'] == status['value'];
+                  return InkWell(
+                    onTap: () {
                       statusController.selectedStatus.value = status;
-                      final newStatus = status['value'];
-
-                      try {
-                        // 🟡 Fetch correct UUID from taskId before update
-                        final taskController = Get.find<TaskController>();
-                        final detail = await taskController.getTaskDetailById(taskId);
-                        final correctUuid = detail['task']['uuid']; // Get UUID from nested task data
-
-                        await statusController.updateTaskStatus(correctUuid);
-                        statusController.updateTaskStatusInUI(correctUuid, newStatus);
-
-                        Navigator.pop(context);
-                        Get.snackbar("Success", "Task status updated to $newStatus");
-                      } catch (e) {
-                        Navigator.pop(context);
-                        Get.snackbar("Error", "Failed to update status: $e");
-                      }
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade50,
-                      foregroundColor: Colors.black87,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.blue.shade100 : Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected ? Colors.blue : Colors.grey.shade300,
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    child: Text(
-                      status['label'],
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            status['label'],
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: isSelected ? Colors.blue : Colors.black87,
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(Icons.check_circle, color: Colors.blue),
+                        ],
+                      ),
                     ),
                   );
                 }).toList(),
@@ -249,6 +246,34 @@ class TasklistCustom extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
+            Obx(() {
+              return ElevatedButton(
+                onPressed: statusController.selectedStatus.value == null
+                    ? null
+                    : () async {
+                  final newStatus = statusController.selectedStatus.value?['value'];
+                  try {
+                    final taskController = Get.find<TaskController>();
+                    final detail = await taskController.getTaskDetailById(taskId);
+                    final correctUuid = detail['task']['uuid'];
+
+                    await statusController.updateTaskStatus(correctUuid);
+                    statusController.updateTaskStatusInUI(correctUuid, newStatus);
+
+                    Navigator.pop(context);
+                  } catch (e) {
+                    Navigator.pop(context);
+                    Get.snackbar("Error", "Failed to update status: $e");
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                child: const Text("Save"),
+              );
+            }),
           ],
         );
       },

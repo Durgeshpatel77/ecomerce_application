@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _navigateToNext() {
     if (mounted) {
-      Get.off(() => const SignUp());
+      Get.off(() => const AuthScreen());
     }
   }
 

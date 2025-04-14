@@ -3,14 +3,14 @@ import 'package:get/get.dart';
 import '../Colors/App_Colors.dart';
 import '../Controller/Auth_Controller.dart';
 
-class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key});
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<AuthScreen> createState() => _SignUpState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _SignUpState extends State<AuthScreen> {
   final AuthController authController = Get.put(AuthController());
   bool _hasPermissions = false;
 

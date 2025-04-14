@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../Controller/Auth_Controller.dart';
-import '../Mainpage_Subpages/Logout_page.dart';
+import '../Mainpage_Subpages/listtodo_page.dart';
 
 
 class HomeScreen extends StatelessWidget  {
@@ -80,8 +80,12 @@ class HomeScreen extends StatelessWidget  {
                     Navigator.pop(context);
                     if (item['text'] == 'Tasks') {
                       Get.to(() => TasklistPage());
-                    } else if (item['text'] == 'Logout') {
-                      Get.to(()=> LogoutPage());
+                    } else if (item['text'] == 'Todos') {
+                      Get.to(() => ListtodoPage());
+
+                    }
+                    else if (item['text'] == 'Logout') {
+                      Get.find<AuthController>().logout();
                     }
                   },
                   borderRadius: BorderRadius.circular(14),
