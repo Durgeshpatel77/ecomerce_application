@@ -109,18 +109,12 @@ class TasklistCustom extends StatelessWidget {
             Get.snackbar('Error', 'Failed to load task details');
           }
         },
-        child: Container(
+        child:
+        Container(
           decoration: BoxDecoration(
             gradient: gradient,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.black12, width: 1),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 6,
-                offset: Offset(2, 3),
-              ),
-            ],
           ),
           child: Padding(
             padding: const EdgeInsets.all(10.0),

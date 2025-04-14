@@ -81,7 +81,7 @@ class HomeScreen extends StatelessWidget  {
                     if (item['text'] == 'Tasks') {
                       Get.to(() => TasklistPage());
                     } else if (item['text'] == 'Todos') {
-                      Get.to(() => ListtodoPage());
+                      Get.to(() => ListTodoPage());
 
                     }
                     else if (item['text'] == 'Logout') {

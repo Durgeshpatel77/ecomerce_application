@@ -1,77 +1,165 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import '../All_custom_widgets/Ttodolist_Custom.dart';
 import '../Controller/ttodo_controller.dart';
 
-class ListtodoPage extends StatelessWidget {
-  ListtodoPage({super.key});
+class ListTodoPage extends StatelessWidget {
+  ListTodoPage({super.key});
 
   final TodoController todoController = Get.put(TodoController());
 
   @override
   Widget build(BuildContext context) {
-    // Fetch todos when this page is loaded
     todoController.fetchTodos();
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Todo List')),
-      body: Obx(() {
-        if (todoController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (todoController.todoList.isEmpty) {
-          return const Center(child: Text('No todos found.'));
-        }
-
-        return ListView.builder(
-          itemCount: todoController.todoList.length,
-          itemBuilder: (context, index) {
-            final item = todoController.todoList[index];
-
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              elevation: 3,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item['title'] ?? 'No Title',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "Todo List",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          elevation: 1,
+          backgroundColor: Colors.transparent,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xfffceabb), Color(0xfff8b500)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+        ),
+        body: Column(
+          children: [
+            Obx(() {
+              final status = todoController.statusCount;
+              return Container(
+                margin: EdgeInsets.symmetric(vertical: height * 0.015),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFa1c4fd), Color(0xFFc2e9fb)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: TabBar(
+                  isScrollable: false,
+                  dividerColor: Colors.transparent,
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.black87,
+                  indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF00c6ff), Color(0xFF0072ff)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
-                    const SizedBox(height: 4),
-                    Text("Description: ${item['description'] ?? 'N/A'}"),
-                    Text("Due Date: ${item['due_date'] ?? 'N/A'}"),
-                    Text("Priority: ${item['priority'] ?? 'N/A'}"),
-                    Text("Status: ${item['status'] ?? 'N/A'}"),
-                    Text("Assigned By (User ID): ${item['assigned_by'] ?? 'N/A'}"),
-                    Text("UUID: ${item['uuid'] ?? 'N/A'}"),
-                    Text("Created At: ${item['created_at'] ?? 'N/A'}"),
-                    Text("Updated At: ${item['updated_at'] ?? 'N/A'}"),
-                    if (item['notes'] != null && item['notes'].isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 6),
-                          const Text(
-                            "Notes:",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          ...List.generate(item['notes'].length, (noteIndex) {
-                            final note = item['notes'][noteIndex];
-                            return Text("- ${note.toString()}");
-                          }),
-                        ],
-                      ),
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  tabs: [
+                    _buildTab("Pending", status['pending']),
+                    _buildTab("In Progress", status['in_progress']),
+                    _buildTab("Completed", status['completed']),
+                    _buildTab("Cancelled", status['cancelled']),
                   ],
                 ),
+              );
+            }),
+            Expanded(
+              child: Obx(() {
+                if (todoController.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                return TabBarView(
+                  children:
+                      [
+                        'pending',
+                        'in_progress',
+                        'completed',
+                        'cancelled',
+                      ].map<Widget>((status) {
+                        final filtered =
+                            todoController.todoList
+                                .where((item) => item['status'] == status)
+                                .toList();
+
+                        if (filtered.isEmpty) {
+                          return const Center(child: Text('No todos found.'));
+                        }
+
+                        return RefreshIndicator(
+                          onRefresh: todoController.fetchTodos,
+                          child: ListView.builder(
+                            itemCount: filtered.length,
+                            itemBuilder: (context, index) {
+                              final item = filtered[index];
+
+                              return TodoItemWidget(
+                                item: item,
+                                status: item['status'] ?? '',
+                                priority: item['priority'] ?? '',
+                                deadline: item['due_date'] ?? '',
+                                description:
+                                    item['description'] ??
+                                    '', // Passing status here
+                              );
+                            },
+                          ),
+                        );
+                      }).toList(),
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTab(String title, int? count) {
+    return Tab(
+      child: SizedBox(
+        height: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            );
-          },
-        );
-      }),
+            ),
+            const SizedBox(height: 2),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  "${count ?? 0}",
+                  style: const TextStyle(fontSize: 13),
+                  maxLines: 1,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
