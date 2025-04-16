@@ -1,28 +1,26 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../All_custom_widgets/Ttodolist_Custom.dart';
+import '../Controller/Ttodostatus_controller.dart';
 import '../Controller/ttodo_controller.dart';
 
 class ListTodoPage extends StatelessWidget {
   ListTodoPage({super.key});
-
   final TodoController todoController = Get.put(TodoController());
+  final TodoStatusController statusController = Get.put(TodoStatusController());
 
   @override
   Widget build(BuildContext context) {
     todoController.fetchTodos();
+    statusController.fetchStatuses();
+
     final double height = MediaQuery.of(context).size.height;
-    final double width = MediaQuery.of(context).size.width;
 
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
-            "Todo List",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          title: const Text("Todo List", style: TextStyle(fontWeight: FontWeight.bold)),
           centerTitle: true,
           elevation: 1,
           backgroundColor: Colors.transparent,
@@ -80,42 +78,45 @@ class ListTodoPage extends StatelessWidget {
                 }
 
                 return TabBarView(
-                  children:
-                      [
-                        'pending',
-                        'in_progress',
-                        'completed',
-                        'cancelled',
-                      ].map<Widget>((status) {
-                        final filtered =
-                            todoController.todoList
-                                .where((item) => item['status'] == status)
-                                .toList();
+                  children: [
+                    'pending',
+                    'in_progress',
+                    'completed',
+                    'cancelled',
+                  ].map<Widget>((status) {
+                    final filtered = todoController.todoList
+                        .where((item) => item['status'] == status)
+                        .toList();
 
-                        if (filtered.isEmpty) {
-                          return const Center(child: Text('No todos found.'));
-                        }
+                    if (filtered.isEmpty) {
+                      return const Center(child: Text('No todos found.'));
+                    }
 
-                        return RefreshIndicator(
-                          onRefresh: todoController.fetchTodos,
-                          child: ListView.builder(
-                            itemCount: filtered.length,
-                            itemBuilder: (context, index) {
-                              final item = filtered[index];
+                    return RefreshIndicator(
+                      onRefresh: todoController.fetchTodos,
+                      child: ListView.builder(
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final item = filtered[index];
 
-                              return TodoItemWidget(
-                                item: item,
-                                status: item['status'] ?? '',
-                                priority: item['priority'] ?? '',
-                                deadline: item['due_date'] ?? '',
-                                description:
-                                    item['description'] ??
-                                    '', // Passing status here
-                              );
-                            },
-                          ),
-                        );
-                      }).toList(),
+                          return GestureDetector(
+                            onTap: () {},
+                            child: TodoItemWidget(
+                              title: item,
+                              status: item['status'] ?? '',
+                              priority: item['priority'] ?? '',
+                              deadline: item['due_date'] ?? '',
+                              description: item['description'] ?? '',
+                              onStatusTap: () {
+                                _showStatusDialog(context, item);
+                              },
+                              item: item,
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }).toList(),
                 );
               }),
             ),
@@ -137,10 +138,7 @@ class ListTodoPage extends StatelessWidget {
                 fit: BoxFit.scaleDown,
                 child: Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -160,6 +158,92 @@ class ListTodoPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showStatusDialog(BuildContext context, Map<String, dynamic> todo) {
+    final RxString selectedStatus = RxString(todo['status'] ?? '');
+    final currentStatus = todo['status'];
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text("Change Todo Status"),
+        content: Obx(() {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: statusController.statusList.map((status) {
+              final isSelected = selectedStatus.value == status['value'];
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: GestureDetector(
+                  onTap: () {
+                    selectedStatus.value = status['value'];
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.blue.shade100 : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? Colors.blue : Colors.grey.shade300,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          status['label'],
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: isSelected ? Colors.blue : Colors.black87,
+                          ),
+                        ),
+                        if (isSelected) const Icon(Icons.check_circle, color: Colors.blue),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        }),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text("Cancel"),
+          ),
+          // Wrap ElevatedButton in a Container
+          Container(
+            height: 40,
+            width: 80,
+            margin: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child:
+            InkWell(
+              onTap: () async {
+                if (selectedStatus.value != currentStatus) {
+                  // Set the selected status in the controller
+                  statusController.selectedStatus.value = statusController.statusList.firstWhere(
+                        (status) => status['value'] == selectedStatus.value,
+                    orElse: () => {},
+                  );
+                  // Call the update method
+                  await statusController.updateTodoStatus(todo['uuid']);
+                }
+                Navigator.pop(context);
+              },
+
+              child: Center(child: const Text("Save")),
+            ),
+          )
+        ],
+      ),
+      barrierDismissible: false,
     );
   }
 }

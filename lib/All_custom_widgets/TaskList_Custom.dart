@@ -102,7 +102,7 @@ class TasklistCustom extends StatelessWidget {
               taskImages: imageUrls,
               notes: List<Map<String, dynamic>>.from(fullDetails['notes'] ?? []),
               createdAt: _formatDateTime(fullDetails['created_at']),
-              updatedAt: _formatDateTime(fullDetails['updated_at']),
+              updatedAt: _formatDateTime(fullDetails['updated_at']), todo: null,
             ));
           } catch (e) {
             Navigator.pop(context);

@@ -4,19 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class TodoItemWidget extends StatelessWidget {
-  final Map<String, dynamic> item;
+  final Map<String, dynamic> title;
   final String status;
   final String priority;
   final String deadline;
   final String description;
+  final VoidCallback onStatusTap; // Add the onStatusTap callback
 
   const TodoItemWidget({
     Key? key,
-    required this.item,
+    required this.title,
     required this.status,
     required this.priority,
     required this.deadline,
     required this.description,
+    required this.onStatusTap, required item, // Initialize the callback
   }) : super(key: key);
 
   // Function to get a random color from the predefined list
@@ -56,7 +58,7 @@ class TodoItemWidget extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    item['title'] ?? 'No Title',
+                    title['title'] ?? 'No Title',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -64,10 +66,12 @@ class TodoItemWidget extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  InkWell(
-                    onTap: () {
-                    },
-                    child: _buildInfoChip1(status.replaceAll('_', ' ').capitalizeFirst ?? '', null),
+                  GestureDetector( // Wrap status in GestureDetector
+                    onTap: onStatusTap,  // Trigger the dialog when status is tapped
+                    child: _buildInfoChip1(
+                      status.replaceAll('_', ' ').capitalizeFirst ?? '',
+                      null,
+                    ),
                   ),
                 ],
               ),

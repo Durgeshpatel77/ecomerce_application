@@ -37,7 +37,7 @@ class TaskDetailPage extends StatelessWidget {
     required this.updatedAt,
     required this.taskImages,
     required this.notes,
-    this.repeatUntil,
+    this.repeatUntil, required todo,
   });
 
   String _format(String? value) {
