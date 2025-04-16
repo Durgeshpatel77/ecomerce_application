@@ -9,10 +9,10 @@ class TaskDetailPage extends StatelessWidget {
   final String deadline;
   final String priority;
   final String workType;
-  final String repetition;
+  //final String repetition;
   final String createdBy;
   final String assignedTo;
-  final String subdepartments;
+  //final String subdepartments;
   final String departmentName;
   final String? repeatUntil;
   final String createdAt;
@@ -28,11 +28,11 @@ class TaskDetailPage extends StatelessWidget {
     required this.deadline,
     required this.priority,
     required this.workType,
-    required this.repetition,
+   // required this.repetition,
     required this.createdBy,
     required this.assignedTo,
     required this.departmentName,
-    required this.subdepartments,
+    //required this.subdepartments,
     required this.createdAt,
     required this.updatedAt,
     required this.taskImages,
@@ -157,12 +157,12 @@ class TaskDetailPage extends StatelessWidget {
         _buildLabelChipRow(),
         const SizedBox(height: 16),
         _buildSingleField("Deadline", deadline),
-        _buildSingleField("Repetition", _format(repetition)),
+        //_buildSingleField("Repetition", _format(repetition)),
         if (repeatUntil != null) _buildSingleField("Repeat Until", repeatUntil!),
         _buildSingleField("Created By", createdBy),
         _buildSingleField("Assigned To", assignedTo),
         _buildSingleField("Department", departmentName),
-        _buildSingleField("Subdepartment", subdepartments),
+       // _buildSingleField("Subdepartment", subdepartments),
         _buildSingleField("Created At", createdAt),
         _buildSingleField("Updated At", updatedAt),
       ],

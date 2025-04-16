@@ -12,7 +12,6 @@ class AuthScreen extends StatefulWidget {
 
 class _SignUpState extends State<AuthScreen> {
   final AuthController authController = Get.put(AuthController());
-  bool _hasPermissions = false;
 
   @override
   void initState() {
@@ -100,7 +99,7 @@ class _SignUpState extends State<AuthScreen> {
                                         ),
                                       ),
                                       child: Text(
-                                        "For your security, please enter 6-digit security code.",
+                                        "For your security, please enter security code.",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(fontSize: 10),
                                       ),
@@ -116,7 +115,7 @@ class _SignUpState extends State<AuthScreen> {
                                 child: TextField(
                                   controller: authController.codeController,
                                   textAlign: TextAlign.center,
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.text,
                                   maxLength: 6,
                                   decoration: InputDecoration(
                                     hintText: '. . . . . .',

@@ -20,7 +20,7 @@ class AuthController extends GetxController {
     if (codeController.text.length != 6) {
       Get.snackbar(
         "Error",
-        "Please enter a valid 6-digit code",
+        "Please enter a valid code",
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
       );
