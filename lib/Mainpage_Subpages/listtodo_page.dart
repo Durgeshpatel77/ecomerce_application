@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import '../All_custom_widgets/Ttodolist_Custom.dart';
 import '../Controller/Ttodostatus_controller.dart';
 import '../Controller/ttodo_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'detailtodo_page.dart';
 
 class ListTodoPage extends StatelessWidget {
   ListTodoPage({super.key});
@@ -100,7 +103,10 @@ class ListTodoPage extends StatelessWidget {
                           final item = filtered[index];
 
                           return GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              Get.to(() => TodoDetailPage(id: item['id'].toString()));
+
+                            },
                             child: TodoItemWidget(
                               title: item,
                               status: item['status'] ?? '',
@@ -213,7 +219,6 @@ class ListTodoPage extends StatelessWidget {
             onPressed: () => Get.back(),
             child: const Text("Cancel"),
           ),
-          // Wrap ElevatedButton in a Container
           Container(
             height: 40,
             width: 80,
@@ -223,21 +228,17 @@ class ListTodoPage extends StatelessWidget {
               color: Colors.blue,
               borderRadius: BorderRadius.circular(10),
             ),
-            child:
-            InkWell(
+            child: InkWell(
               onTap: () async {
                 if (selectedStatus.value != currentStatus) {
-                  // Set the selected status in the controller
                   statusController.selectedStatus.value = statusController.statusList.firstWhere(
                         (status) => status['value'] == selectedStatus.value,
                     orElse: () => {},
                   );
-                  // Call the update method
                   await statusController.updateTodoStatus(todo['uuid']);
                 }
                 Navigator.pop(context);
               },
-
               child: Center(child: const Text("Save")),
             ),
           )

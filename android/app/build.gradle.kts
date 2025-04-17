@@ -4,10 +4,10 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
-
 android {
     namespace = "com.ecommerce.ecomerce_application"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35 // Set compileSdk to 33 (or latest available)
+
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -20,20 +20,14 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.ecommerce.ecomerce_application"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        minSdk = 21  // Set minSdk to 21 (or your desired minimum SDK version)
+        targetSdk = 33  // Set targetSdk to 33 (or latest target version)
+        versionCode = 1  // Adjust version code accordingly
+        versionName = "1.0"  // Adjust version name accordingly
     }
-
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
     }

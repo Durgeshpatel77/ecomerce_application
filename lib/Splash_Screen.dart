@@ -29,15 +29,49 @@ class _SplashScreenState extends State<SplashScreen>
     });
 
     _controller.forward();
-    requestPermissions();
+    requestPermissions();  // Request permissions before navigating
   }
 
   Future<void> requestPermissions() async {
+    // Request storage-related permissions
+    await requestStoragePermission();
+
+    // Request other permissions (photos, media library, location)
     await [
-      Permission.location,
       Permission.photos,
-      Permission.storage,
+      Permission.mediaLibrary,
+      Permission.location,
     ].request();
+  }
+
+  Future<void> requestStoragePermission() async {
+    // Requesting MANAGE_EXTERNAL_STORAGE permission on Android 11+
+    if (await Permission.manageExternalStorage.isPermanentlyDenied) {
+      openAppSettings();
+    } else {
+      PermissionStatus status = await Permission.manageExternalStorage.request();
+      if (status.isGranted) {
+        print("Storage permission granted.");
+      } else {
+        print("Storage permission denied.");
+      }
+    }
+
+    // Request regular storage permission if needed
+    PermissionStatus status = await Permission.storage.request();
+    print("Storage permission status before request: $status");
+
+    if (!status.isGranted) {
+      status = await Permission.storage.request();
+      print("Storage permission status after request: $status");
+
+      if (status.isPermanentlyDenied) {
+        Get.snackbar('Permission Denied', 'Permission permanently denied. Please enable it in settings.');
+        openAppSettings();
+      } else {
+        Get.snackbar('Permission Denied', 'Storage permission not granted. Please enable it.');
+      }
+    }
   }
 
   void _navigateToNext() {

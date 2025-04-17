@@ -1,7 +1,6 @@
-import 'dart:math';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TodoItemWidget extends StatelessWidget {
   final Map<String, dynamic> title;
@@ -9,7 +8,9 @@ class TodoItemWidget extends StatelessWidget {
   final String priority;
   final String deadline;
   final String description;
-  final VoidCallback onStatusTap; // Add the onStatusTap callback
+  final VoidCallback onStatusTap;
+  final Map<String, dynamic> item;
+  final List<dynamic>? attachments; // Add attachments parameter
 
   const TodoItemWidget({
     Key? key,
@@ -18,32 +19,31 @@ class TodoItemWidget extends StatelessWidget {
     required this.priority,
     required this.deadline,
     required this.description,
-    required this.onStatusTap, required item, // Initialize the callback
+    required this.onStatusTap,
+    required this.item,
+    this.attachments, // Initialize the attachments parameter
   }) : super(key: key);
 
-  // Function to get a random color from the predefined list
-  Color getRandomColor() {
-    final colors = [
-      const Color.fromARGB(255, 255, 234, 214),
-      const Color.fromARGB(255, 232, 243, 255),
-      const Color.fromARGB(255, 255, 240, 245),
-      const Color.fromARGB(255, 230, 255, 247),
-      const Color.fromARGB(255, 250, 230, 255),
-      const Color.fromARGB(255, 240, 255, 240),
-    ];
-    return colors[Random().nextInt(colors.length)];
+  // Function to launch URLs
+  void _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final color = getRandomColor();
+    // Debug: Print the attachments list
+    print('Attachments: $attachments');  // Add this line for debugging
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 16),
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [color.withOpacity(0.6), color.withOpacity(0.8)],
+            colors: [Colors.blue.shade100, Colors.blue.shade200],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -66,8 +66,8 @@ class TodoItemWidget extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  GestureDetector( // Wrap status in GestureDetector
-                    onTap: onStatusTap,  // Trigger the dialog when status is tapped
+                  GestureDetector(
+                    onTap: onStatusTap,
                     child: _buildInfoChip1(
                       status.replaceAll('_', ' ').capitalizeFirst ?? '',
                       null,
@@ -93,6 +93,9 @@ class TodoItemWidget extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
+              // If attachments are provided, display them
+              if (attachments != null && attachments!.isNotEmpty)
+                _buildAttachments(),
             ],
           ),
         ),
@@ -100,7 +103,37 @@ class TodoItemWidget extends StatelessWidget {
     );
   }
 
-  // Custom Info Chip Widget accepting both label and optional icon
+  // Widget to build the attachments UI
+  Widget _buildAttachments() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: attachments!.map((attachment) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Row(
+            children: [
+              Icon(Icons.attach_file, size: 16, color: Colors.black87),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () {
+                  if (attachment is String && Uri.parse(attachment).isAbsolute) {
+                    _launchURL(attachment);
+                  } else {
+                    // Handle non-URL attachments (e.g., file paths or other formats)
+                  }
+                },
+                child: Text(
+                  attachment.toString(),
+                  style: const TextStyle(fontSize: 12, color: Colors.black87),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _buildInfoChip1(String label, IconData? icon) {
     return Chip(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

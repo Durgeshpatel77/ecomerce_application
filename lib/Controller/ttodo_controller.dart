@@ -15,6 +15,10 @@ class TodoController extends GetxController {
     'total': 0,
   }.obs;
 
+  // Detail for a single todo
+  var todoDetail = <String, dynamic>{}.obs;
+
+  // Fetch todo list and status counts
   Future<void> fetchTodos() async {
     isLoading.value = true;
 
@@ -34,7 +38,7 @@ class TodoController extends GetxController {
         headers: {'Authorization': token, 'Accept': 'application/json'},
       );
 
-      // Fetch status count (UPDATED ENDPOINT)
+      // Fetch status count
       final statusResponse = await http.get(
         Uri.parse('https://inagold.in/api/count_todos'),
         headers: {'Authorization': token, 'Accept': 'application/json'},
@@ -64,6 +68,42 @@ class TodoController extends GetxController {
       }
     } catch (e) {
       print("Error fetching todos: $e");
+      Get.snackbar("Error", "Something went wrong");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Fetch detail of a specific todo by UUID
+  Future<void> fetchTodoDetail(String id) async {
+    isLoading.value = true;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      if (token == null) {
+        Get.snackbar("Error", "No token found. Please login again.");
+        isLoading.value = false;
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('https://inagold.in/api/get_todo_details/$id'),
+        headers: {'Authorization': token, 'Accept': 'application/json'},
+      );
+
+      print("Todo Detail Response Code: ${response.statusCode}");
+      print("Todo Detail Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        todoDetail.value = data['data'] ?? {};
+      } else {
+        Get.snackbar("Error", "Failed to fetch todo details");
+      }
+    } catch (e) {
+      print("Error fetching todo detail: $e");
       Get.snackbar("Error", "Something went wrong");
     } finally {
       isLoading.value = false;

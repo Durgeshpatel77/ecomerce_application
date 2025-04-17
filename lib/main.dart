@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart'; // 👈 import this
 
 import 'Controller/Auth_Controller.dart';
 import 'Controller/TaskList_Controller.dart';
@@ -23,9 +24,23 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // 👇 Run permission check after UI is built
+    Future.delayed(Duration.zero, () async {
+      final status = await Permission.manageExternalStorage.status;
+      if (!status.isGranted) {
+        final newStatus = await Permission.manageExternalStorage.request();
+        if (!newStatus.isGranted) {
+          Get.snackbar(
+            'Permission Denied',
+            'Please grant storage permission to download the file.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
+      }
+    });
+
     return GetMaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
