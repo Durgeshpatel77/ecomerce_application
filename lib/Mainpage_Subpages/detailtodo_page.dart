@@ -10,43 +10,6 @@ class TodoDetailPage extends StatelessWidget {
   final String id;
 
   const TodoDetailPage({Key? key, required this.id}) : super(key: key);
-
-  // Request storage and manage storage permissions
-  Future<void> requestPermissions() async {
-    final storageStatus = await Permission.storage.request();
-    if (!storageStatus.isGranted) {
-      Get.snackbar('Permission Denied', 'Storage permission not granted. Please enable it.');
-      return;
-    }
-
-    final manageStatus = await Permission.manageExternalStorage.request();
-    if (!manageStatus.isGranted) {
-      Get.snackbar('Permission Denied', 'Full storage permission not granted. Please enable it.');
-      return;
-    }
-
-  }
-
-  // Method to handle file download
-  Future<void> downloadFile(String url, String fileName) async {
-    if (!(await Permission.storage.isGranted) || !(await Permission.manageExternalStorage.isGranted)) {
-      Get.snackbar('Permission Denied', 'Storage permission not granted. Please enable it.');
-      return;
-    }
-
-    try {
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-      String savePath = '${appDocDir.path}/$fileName';
-
-      Dio dio = Dio();
-      await dio.download(url, savePath);
-
-      Get.snackbar('Download Complete', 'File has been downloaded to $savePath');
-    } catch (e) {
-      Get.snackbar('Download Failed', 'Error: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final TodoController controller = Get.find<TodoController>();
@@ -58,8 +21,13 @@ class TodoDetailPage extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Todo Details")),
-      body: SingleChildScrollView(
+      appBar: AppBar(
+        title: Obx(() {
+          final title = controller.todoDetail['title'];
+          return Text(title != null && title.isNotEmpty ? title : 'Todo Details');
+        }),
+      ),
+body: SingleChildScrollView(
         child: Obx(() {
           final todo = controller.todoDetail;
 
@@ -76,7 +44,6 @@ class TodoDetailPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Title: ${todo['title'] ?? ''}", style: TextStyle(fontSize: 18)),
                 const SizedBox(height: 10),
                 Text("Status: ${todo['status'] ?? ''}"),
                 const SizedBox(height: 10),
@@ -137,3 +104,48 @@ class TodoDetailPage extends StatelessWidget {
     );
   }
 }
+Future<void> requestPermissions() async {
+  // Skip if already granted
+  if (await Permission.storage.isGranted &&
+      await Permission.manageExternalStorage.isGranted) {
+    return; // Already granted, no need to ask again
+  }
+
+  // Request basic storage
+  final storageStatus = await Permission.storage.request();
+  if (!storageStatus.isGranted) {
+    Get.snackbar('Permission Denied', 'Please grant storage permission to download the file.');
+    return;
+  }
+
+  // Request full access if needed (for Android 11+)
+  final manageStatus = await Permission.manageExternalStorage.request();
+  if (!manageStatus.isGranted) {
+    Get.snackbar(
+        'Permission Denied', 'Please grant full storage permission to access all files.');
+    return;
+  }
+
+  // Success
+  Get.snackbar('Permission Granted', 'You can now download files.');
+}
+Future<void> downloadFile(String url, String fileName) async {
+  if (!await Permission.storage.isGranted ||
+      !await Permission.manageExternalStorage.isGranted) {
+    Get.snackbar('Permission Denied', 'Storage permission not granted. Please enable it.');
+    return;
+  }
+
+  try {
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String savePath = '${appDocDir.path}/$fileName';
+
+    Dio dio = Dio();
+    await dio.download(url, savePath);
+
+    Get.snackbar('Download Complete', 'File has been downloaded to $savePath');
+  } catch (e) {
+    Get.snackbar('Download Failed', 'Error: $e');
+  }
+}
+
