@@ -33,15 +33,24 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> requestPermissions() async {
-    // Request storage-related permissions
-    await requestStoragePermission();
-
-    // Request other permissions (photos, media library, location)
-    await [
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.manageExternalStorage,
+      Permission.storage,
       Permission.photos,
       Permission.mediaLibrary,
       Permission.location,
     ].request();
+
+    // Check and notify if any were denied
+    statuses.forEach((perm, status) {
+      if (status.isDenied || status.isPermanentlyDenied) {
+        Get.snackbar(
+          'Permission Error',
+          '$perm permission not granted. Please enable it in settings.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    });
   }
 
   Future<void> requestStoragePermission() async {

@@ -22,7 +22,7 @@ android {
     defaultConfig {
         applicationId = "com.ecommerce.ecomerce_application"
         minSdk = 21  // Set minSdk to 21 (or your desired minimum SDK version)
-        targetSdk = 33  // Set targetSdk to 33 (or latest target version)
+        targetSdk = 33 // Set targetSdk to 33 (or latest target version)
         versionCode = 1  // Adjust version code accordingly
         versionName = "1.0"  // Adjust version name accordingly
     }
