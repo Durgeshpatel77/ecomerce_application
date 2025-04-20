@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,7 +11,7 @@ class TodoItemWidget extends StatelessWidget {
   final String description;
   final VoidCallback onStatusTap;
   final Map<String, dynamic> item;
-  final List<dynamic>? attachments; // Add attachments parameter
+  final List<dynamic>? attachments;
 
   const TodoItemWidget({
     Key? key,
@@ -21,10 +22,9 @@ class TodoItemWidget extends StatelessWidget {
     required this.description,
     required this.onStatusTap,
     required this.item,
-    this.attachments, // Initialize the attachments parameter
+    this.attachments,
   }) : super(key: key);
 
-  // Function to launch URLs
   void _launchURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
@@ -35,15 +35,30 @@ class TodoItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Debug: Print the attachments list
-    print('Attachments: $attachments');  // Add this line for debugging
+    // Define pastel color palette
+    final List<Color> pastelColors = [
+      const Color.fromARGB(255, 255, 234, 214),
+      const Color.fromARGB(255, 232, 243, 255),
+      const Color.fromARGB(255, 255, 240, 245),
+      const Color.fromARGB(255, 230, 255, 247),
+      const Color.fromARGB(255, 250, 230, 255),
+      const Color.fromARGB(255, 240, 255, 240),
+    ];
+
+    // Pick two different random colors for gradient
+    final Random random = Random();
+    final Color color1 = pastelColors[random.nextInt(pastelColors.length)];
+    Color color2;
+    do {
+      color2 = pastelColors[random.nextInt(pastelColors.length)];
+    } while (color1 == color2);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 16),
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue.shade100, Colors.blue.shade200],
+            colors: [color1, color2],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -57,7 +72,7 @@ class TodoItemWidget extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Expanded( // Prevents overflow for long titles
+                  Expanded(
                     child: Text(
                       title['title'] ?? 'No Title',
                       style: const TextStyle(
@@ -65,7 +80,7 @@ class TodoItemWidget extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
-                      overflow: TextOverflow.ellipsis, // Ensures it doesn't spill
+                      overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),
                   ),
@@ -97,7 +112,6 @@ class TodoItemWidget extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
-
               if (attachments != null && attachments!.isNotEmpty)
                 _buildAttachments(),
             ],
@@ -107,7 +121,6 @@ class TodoItemWidget extends StatelessWidget {
     );
   }
 
-  // Widget to build the attachments UI
   Widget _buildAttachments() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,14 +129,12 @@ class TodoItemWidget extends StatelessWidget {
           padding: const EdgeInsets.only(top: 4),
           child: Row(
             children: [
-              Icon(Icons.attach_file, size: 16, color: Colors.black87),
+              const Icon(Icons.attach_file, size: 16, color: Colors.black87),
               const SizedBox(width: 8),
               GestureDetector(
                 onTap: () {
                   if (attachment is String && Uri.parse(attachment).isAbsolute) {
                     _launchURL(attachment);
-                  } else {
-                    // Handle non-URL attachments (e.g., file paths or other formats)
                   }
                 },
                 child: Text(

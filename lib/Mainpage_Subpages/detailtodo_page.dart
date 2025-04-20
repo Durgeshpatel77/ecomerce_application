@@ -38,8 +38,8 @@ class TodoDetailPage extends StatelessWidget {
         elevation: 1,
         backgroundColor: Colors.transparent,
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
               colors: [Color(0xfffceabb), Color(0xfff8b500)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -64,51 +64,91 @@ class TodoDetailPage extends StatelessWidget {
               /// === CONTAINER 1: Task Info ===
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Color(0xfffceabb), Color(0xfff8b500)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                ),                child: Column(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Task Info", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      "Task Info",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        Chip(label: Text('Status: ${todo['status'] ?? ''}')),
-                        Chip(label: Text('Priority: ${todo['priority'] ?? ''}')),
+                      Wrap(
+                      spacing: 10,
+                      runSpacing: 8,
+                      children: [
+                        _pillChip1("Status", _format(todo['status']), Colors.teal),
+                        _pillChip1("Priority", _format(todo['priority']), Colors.deepOrange),
+                      ],
+                    ),
                       ],
                     ),
                     const SizedBox(height: 10),
                     if (todo['due_date'] != null)
                       Row(
                         children: [
-                          const Text("Deadline: ", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          const Text(
+                            "Deadline: ",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           FormattedDateTimeText(isoString: todo['due_date']),
                         ],
                       ),
                     if (todo['completed_at'] != null)
                       Row(
                         children: [
-                          const Text("Completed At: ", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          FormattedDateTimeText(isoString: todo['completed_at']),
+                          const Text(
+                            "Completed At: ",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          FormattedDateTimeText(
+                            isoString: todo['completed_at'],
+                          ),
                         ],
                       ),
                     if (todo['created_at'] != null)
                       Row(
                         children: [
-                          const Text("Created At: ", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          const Text(
+                            "Created At: ",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           FormattedDateTimeText(isoString: todo['created_at']),
                         ],
                       ),
                     if (todo['updated_at'] != null)
                       Row(
                         children: [
-                          const Text("Updated At: ", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          const Text(
+                            "Updated At: ",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           FormattedDateTimeText(isoString: todo['updated_at']),
                         ],
                       ),
@@ -122,116 +162,173 @@ class TodoDetailPage extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
                     colors: [Color(0xfffceabb), Color(0xfff8b500)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                ),                child: Column(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Description", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
-                    Text(todo['description'] ?? "No description available"),
+                    const Text(
+                      "Description",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      (todo['description'] != null && todo['description'].toString().trim().isNotEmpty)
+                          ? todo['description']
+                          : "No description found",
+                      style: const TextStyle(fontSize: 16),
+                    ),
                     const SizedBox(height: 16),
                   ],
                 ),
               ),
 
               const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xfffceabb), Color(0xfff8b500)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),  child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Attachments", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    if (attachments.isNotEmpty) ...[
-                      const Text("Attachments", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      Column(
-                        children: attachments.map<Widget>((attachment) {
-                          return Card(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 2,
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            child: ListTile(
-                              leading: const Icon(Icons.attach_file),
-                              title: Text(attachment['file_name'] ?? 'No name'),
-                              subtitle: Text(attachment['file_type'] ?? 'Unknown type'),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.download),
-                                onPressed: () async {
-                                  await downloadFile(attachment['image_url'], attachment['file_name']);
-                                },
-                              ),
-                            ),
-                          );
-                        }).toList(),
+              Column(
+                children: [
+                  /// Attachments Section
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xfffceabb), Color(0xfff8b500)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                    ],
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              /// === CONTAINER 4: Notes or No Detail ===
-              Container(
-                padding: const EdgeInsets.all(16),
-                width:double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xfffceabb), Color(0xfff8b500)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Attachments",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        if (attachments != null && attachments.isNotEmpty)
+                          Column(
+                            children: attachments.map<Widget>((attachment) {
+                              return Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                                margin: const EdgeInsets.symmetric(vertical: 6),
+                                child: ListTile(
+                                  leading: const Icon(Icons.attach_file),
+                                  title: Text(attachment['file_name'] ?? 'No name'),
+                                  subtitle: Text(attachment['file_type'] ?? 'Unknown type'),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.download),
+                                    onPressed: () async {
+                                      await downloadFile(
+                                        attachment['image_url'],
+                                        attachment['file_name'],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          )
+                        else
+                          const Text(
+                            "No attachment found",
+                            style: TextStyle(fontSize: 16, fontStyle: FontStyle.normal),
+                          ),
+                      ],
+                    ),
                   ),
-                ),                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Notes", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    if (notes.isNotEmpty)
-                      Column(
-                        children: notes.map<Widget>((note) {
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              color: Colors.white
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(note['content'] ?? '', style: const TextStyle(fontSize: 16)),
-                                const SizedBox(height: 8),
-                                Row(
+
+                  /// Equal vertical spacing
+                  const SizedBox(height: 20),
+
+                  /// Notes Section
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xfffceabb), Color(0xfff8b500)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child:
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Notes",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        if (notes.isNotEmpty)
+                          Column(
+                            children: notes.map<Widget>((note) {
+                              final content = note['content'] ?? '';
+                              final email = note['user']['email'] ?? '';
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: Colors.white,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(note['user']['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                    const SizedBox(width: 8),
-                                    Text("(${note['user']['email'] ?? ''})", style: const TextStyle(fontStyle: FontStyle.italic)),
+                                    Text(
+                                      capitalizeFirst(content),
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          capitalizeFirst(email),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    FormattedDateTimeText(
+                                      isoString: note['created_at'],
+                                      style: const TextStyle(fontSize: 14, color: Colors.black),
+                                    ),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
-                                Text("Created at: ${note['created_at'] ?? ''}"),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      )
-                    else if (attachments.isEmpty && (todo['description'] ?? '').isEmpty)
-                      const Text("No detail found.", style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
-                  ],
-                ),
-              ),
+                              );
+                            }).toList(),
+                          )
+                        else if (attachments.isEmpty && (todo['description'] ?? '').isEmpty)
+                          const Text(
+                            "No detail found.",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                      ],
+                    ),                  ),
+                ],
+              )
             ],
           ),
         );
@@ -272,4 +369,67 @@ Future<void> _scanFile(String filePath) async {
   } on PlatformException catch (e) {
     print("Error scanning file: $e");
   }
+}
+String capitalizeFirst(String text) {
+  if (text.isEmpty) return text;
+  return text[0].toUpperCase() + text.substring(1);
+}
+Widget _pillChip1(String label, String value, Color color) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.15),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.label_important, size: 16, color: color),
+        const SizedBox(width: 6),
+        Text(
+          "$label: ",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.normal,
+            color: color,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+String _format(String? input) {
+  if (input == null || input.isEmpty) return '';
+  return input[0].toUpperCase() + input.substring(1).toLowerCase();
+}
+
+Widget _buildTodoLabelChips(Map<String, dynamic> todo) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        "Task Info",
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      const SizedBox(height: 10),
+      Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        children: [
+          _pillChip1("Status", _format(todo['status']), Colors.teal),
+          _pillChip1("Priority", _format(todo['priority']), Colors.deepOrange),
+         ],
+      ),
+    ],
+  );
 }
