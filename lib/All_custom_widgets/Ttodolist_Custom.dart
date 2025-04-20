@@ -57,12 +57,16 @@ class TodoItemWidget extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(
-                    title['title'] ?? 'No Title',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                  Expanded( // Prevents overflow for long titles
+                    child: Text(
+                      title['title'] ?? 'No Title',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      overflow: TextOverflow.ellipsis, // Ensures it doesn't spill
+                      maxLines: 1,
                     ),
                   ),
                   const Spacer(),
@@ -93,7 +97,7 @@ class TodoItemWidget extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
-              // If attachments are provided, display them
+
               if (attachments != null && attachments!.isNotEmpty)
                 _buildAttachments(),
             ],

@@ -1,11 +1,11 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/services.dart';
 
-import '../Controller/ttodo_controller.dart';  // For using platform channels
+import '../All_custom_widgets/FormattedDateTime_custom.dart';
+import '../Controller/ttodo_controller.dart';
 
 class TodoDetailPage extends StatelessWidget {
   final String id;
@@ -19,6 +19,7 @@ class TodoDetailPage extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.fetchTodoDetail(id);
     });
+
     String _format(String? value) {
       if (value == null) return '';
       return value.replaceAll('_', ' ').capitalizeFirst ?? '';
@@ -26,10 +27,13 @@ class TodoDetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _format(controller.todoDetail.value['title']), // Use 'title' from todo map
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Obx(() {
+          final title = controller.todoDetail.value['title'];
+          return Text(
+            _format(title),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          );
+        }),
         centerTitle: true,
         elevation: 1,
         backgroundColor: Colors.transparent,
@@ -42,183 +46,225 @@ class TodoDetailPage extends StatelessWidget {
             ),
           ),
         ),
-
       ),
-      body: SingleChildScrollView(
-        child:
-        Obx(() {
-          final todo = controller.todoDetail.value;  // Accessing the value from the observable
+      body: Obx(() {
+        final todo = controller.todoDetail.value;
 
-          if (todo.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        if (todo.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          final attachments = todo['attachments'] ?? [];
-          final notes = todo['notes'] ?? [];
+        final attachments = todo['attachments'] ?? [];
+        final notes = todo['notes'] ?? [];
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title
-
-                // Subtitle
-                if (todo['subtitle'] != null)
-                  Text(
-                    todo['subtitle'],
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              /// === CONTAINER 1: Task Info ===
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xfffceabb), Color(0xfff8b500)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-
-                const SizedBox(height: 16),
-
-                // Chips
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                ),                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Chip(label: Text('Status: ${todo['status'] ?? ''}')),
-                    Chip(label: Text('Priority: ${todo['priority'] ?? ''}')),
-                    Chip(label: Text('Work Type: ${todo['work_type'] ?? ''}')),
-                    Chip(label: Text('Repeat: ${todo['repeat_task'] ?? ''}')),
+                    const Text("Task Info", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        Chip(label: Text('Status: ${todo['status'] ?? ''}')),
+                        Chip(label: Text('Priority: ${todo['priority'] ?? ''}')),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    if (todo['due_date'] != null)
+                      Row(
+                        children: [
+                          const Text("Deadline: ", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          FormattedDateTimeText(isoString: todo['due_date']),
+                        ],
+                      ),
+                    if (todo['completed_at'] != null)
+                      Row(
+                        children: [
+                          const Text("Completed At: ", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          FormattedDateTimeText(isoString: todo['completed_at']),
+                        ],
+                      ),
+                    if (todo['created_at'] != null)
+                      Row(
+                        children: [
+                          const Text("Created At: ", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          FormattedDateTimeText(isoString: todo['created_at']),
+                        ],
+                      ),
+                    if (todo['updated_at'] != null)
+                      Row(
+                        children: [
+                          const Text("Updated At: ", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          FormattedDateTimeText(isoString: todo['updated_at']),
+                        ],
+                      ),
                   ],
                 ),
+              ),
 
-                const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-                // Deadline
-                if (todo['deadline'] != null)
-                  Text(
-                    "Deadline: ${todo['deadline']}",
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              /// === CONTAINER 2: Description and Attachments ===
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xfffceabb), Color(0xfff8b500)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                ),                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Description", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    Text(todo['description'] ?? "No description available"),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
 
-                const SizedBox(height: 16),
-
-                // Description
-                if ((todo['description'] ?? '').isNotEmpty) ...[
-                  const Text("Description", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 6),
-                  Text(todo['description']),
-                  const SizedBox(height: 16),
-                ],
-
-                // Attachments Section
-                if (attachments.isNotEmpty) ...[
-                  const Text("Attachments", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  Column(
-                    children: attachments.map<Widget>((attachment) {
-                      return Card(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        elevation: 2,
-                        margin: const EdgeInsets.symmetric(vertical: 6),
-                        child: ListTile(
-                          leading: const Icon(Icons.attach_file),
-                          title: Text(attachment['file_name'] ?? 'No name'),
-                          subtitle: Text(attachment['file_type'] ?? 'Unknown type'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.download),
-                            onPressed: () async {
-                              await requestPermissions();
-                              await downloadFile(attachment['image_url'], attachment['file_name']);
-                            },
-                          ),
-                        ),
-                      );
-                    }).toList(),
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xfffceabb), Color(0xfff8b500)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  const SizedBox(height: 16),
-                ],
+                ),  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Attachments", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    if (attachments.isNotEmpty) ...[
+                      const Text("Attachments", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      Column(
+                        children: attachments.map<Widget>((attachment) {
+                          return Card(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 2,
+                            margin: const EdgeInsets.symmetric(vertical: 6),
+                            child: ListTile(
+                              leading: const Icon(Icons.attach_file),
+                              title: Text(attachment['file_name'] ?? 'No name'),
+                              subtitle: Text(attachment['file_type'] ?? 'Unknown type'),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.download),
+                                onPressed: () async {
+                                  await downloadFile(attachment['image_url'], attachment['file_name']);
+                                },
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
 
-                // Notes Section
-                if (notes.isNotEmpty) ...[
-                  const Text("Notes", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  Column(
-                    children: notes.map<Widget>((note) {
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: LinearGradient(
-                            colors: [Colors.purple.shade50, Colors.purple.shade100],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(note['content'] ?? '', style: const TextStyle(fontSize: 16)),
-                            const SizedBox(height: 8),
-                            Row(
+              const SizedBox(height: 20),
+
+              /// === CONTAINER 4: Notes or No Detail ===
+              Container(
+                padding: const EdgeInsets.all(16),
+                width:double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xfffceabb), Color(0xfff8b500)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Notes", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    if (notes.isNotEmpty)
+                      Column(
+                        children: notes.map<Widget>((note) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              color: Colors.white
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(note['user']['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                const SizedBox(width: 8),
-                                Text("(${note['user']['email'] ?? ''})", style: const TextStyle(fontStyle: FontStyle.italic)),
+                                Text(note['content'] ?? '', style: const TextStyle(fontSize: 16)),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Text(note['user']['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    const SizedBox(width: 8),
+                                    Text("(${note['user']['email'] ?? ''})", style: const TextStyle(fontStyle: FontStyle.italic)),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text("Created at: ${note['created_at'] ?? ''}"),
                               ],
                             ),
-                            const SizedBox(height: 4),
-                            Text("Created at: ${note['created_at'] ?? ''}"),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ],
-            ),
-          );
-        }),
-      ),
+                          );
+                        }).toList(),
+                      )
+                    else if (attachments.isEmpty && (todo['description'] ?? '').isEmpty)
+                      const Text("No detail found.", style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
-  }
-}
-
-Future<void> requestPermissions() async {
-  final status = await Permission.storage.request();
-  if (!status.isGranted) {
-    Get.snackbar('Permission Denied', 'Please grant storage permission to download the file.');
   }
 }
 
 Future<void> downloadFile(String url, String filename) async {
   try {
-    final dir = await getExternalStorageDirectory();
-    if (dir == null) {
-      Get.snackbar('Error', 'Could not access storage directory');
-      return;
-    }
+    final dir = Directory('/storage/emulated/0/Download');
+    if (!await dir.exists()) await dir.create(recursive: true);
 
     final filePath = "${dir.path}/$filename";
     Dio dio = Dio();
-
-    // Add debugging to check if URL and filename are correct
-    print("Downloading file from: $url to $filePath");
 
     await dio.download(
       url,
       filePath,
       onReceiveProgress: (received, total) {
         if (total != -1) {
-          print("Progress: ${(received / total * 100).toStringAsFixed(0)}%");
+          // print("Progress: ${(received / total * 100).toStringAsFixed(0)}%");
         }
       },
     );
 
-    // Trigger media scanning so the downloaded file shows up in the gallery
-    _scanFile(filePath);
-
-    Get.snackbar('Download Complete', 'File saved to: $filePath');
+    await _scanFile(filePath);
+    Get.snackbar('Download Complete', 'Saved to: $filePath');
   } catch (e) {
-    print("Download error: $e");
     Get.snackbar('Download Failed', e.toString());
   }
 }
 
-// Function to trigger media scanning
 Future<void> _scanFile(String filePath) async {
   try {
     const platform = MethodChannel('com.example.app/media');

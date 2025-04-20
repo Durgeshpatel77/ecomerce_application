@@ -42,15 +42,6 @@ class _SplashScreenState extends State<SplashScreen>
     ].request();
 
     // Check and notify if any were denied
-    statuses.forEach((perm, status) {
-      if (status.isDenied || status.isPermanentlyDenied) {
-        Get.snackbar(
-          'Permission Error',
-          '$perm permission not granted. Please enable it in settings.',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
-    });
   }
 
   Future<void> requestStoragePermission() async {
@@ -73,13 +64,6 @@ class _SplashScreenState extends State<SplashScreen>
     if (!status.isGranted) {
       status = await Permission.storage.request();
       print("Storage permission status after request: $status");
-
-      if (status.isPermanentlyDenied) {
-        Get.snackbar('Permission Denied', 'Permission permanently denied. Please enable it in settings.');
-        openAppSettings();
-      } else {
-        Get.snackbar('Permission Denied', 'Storage permission not granted. Please enable it.');
-      }
     }
   }
 

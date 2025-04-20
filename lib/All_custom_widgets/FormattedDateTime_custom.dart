@@ -30,7 +30,7 @@ class FormattedDateTimeText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       _formatDateTime(isoString),
-      style: style ?? const TextStyle(fontSize: 12, color: Colors.grey),
+      style: style ?? const TextStyle(fontSize: 16, color: Colors.black),
     );
   }
 }

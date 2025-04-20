@@ -123,17 +123,20 @@ class TasklistCustom extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      taskname.capitalizeFirst ?? '',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                    Expanded( // This prevents overflow
+                      child: Text(taskname.capitalizeFirst ?? '',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1, // Optional: one line only
                       ),
                     ),
                     const Spacer(),
                     InkWell(
-                      onTap: () => _showStatusDialog(context,taskId),
+                      onTap: () => _showStatusDialog(context, taskId),
                       child: _buildInfoChip(null, status.replaceAll('_', ' ').capitalizeFirst ?? ''),
                     ),
                   ],
