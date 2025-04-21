@@ -17,6 +17,7 @@ class TaskDetailPage extends StatelessWidget {
   final String? repeatUntil;
   final String createdAt;
   final String updatedAt;
+
   final List<dynamic> taskImages;
   final List<dynamic> notes;
 
@@ -107,21 +108,15 @@ class TaskDetailPage extends StatelessWidget {
                 title: "Notes",
                 children: notes.map((note) {
                   return Container(
+
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.red,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.grey.shade200,
-                          backgroundImage: (note['user']['profile_photo_url'] != null &&
-                              note['user']['profile_photo_url'].toString().isNotEmpty)
-                              ? NetworkImage(note['user']['profile_photo_url'])
-                              : const AssetImage('assets/default_avatar.png') as ImageProvider,
-                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
