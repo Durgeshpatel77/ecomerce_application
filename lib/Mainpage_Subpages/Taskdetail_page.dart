@@ -1,6 +1,10 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../All_custom_widgets/FormattedDateTime_custom.dart';
+import 'package:path_provider/path_provider.dart';
 
 class TaskDetailPage extends StatelessWidget {
   final String taskname;
@@ -9,15 +13,12 @@ class TaskDetailPage extends StatelessWidget {
   final String deadline;
   final String priority;
   final String workType;
-  //final String repetition;
   final String createdBy;
   final String assignedTo;
-  //final String subdepartments;
   final String departmentName;
   final String? repeatUntil;
   final String createdAt;
   final String updatedAt;
-
   final List<dynamic> taskImages;
   final List<dynamic> notes;
 
@@ -29,16 +30,15 @@ class TaskDetailPage extends StatelessWidget {
     required this.deadline,
     required this.priority,
     required this.workType,
-   // required this.repetition,
     required this.createdBy,
     required this.assignedTo,
     required this.departmentName,
-    //required this.subdepartments,
     required this.createdAt,
     required this.updatedAt,
     required this.taskImages,
     required this.notes,
-    this.repeatUntil, required todo,
+    this.repeatUntil,
+    required todo,
   });
 
   String _format(String? value) {
@@ -64,10 +64,7 @@ class TaskDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _format(taskname),
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text(_format(taskname), style: const TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         elevation: 1,
         backgroundColor: Colors.transparent,
@@ -85,60 +82,56 @@ class TaskDetailPage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildSectionContainer(
-              title: "Task Info",
-              children: [_buildTaskInfoSection()],
-            ),
-            const SizedBox(height: 20),
-            _buildSectionContainer(
-              title: "Task Images",
-              children: [_buildImageGallery(taskImages)],
-            ),
+            _buildSectionContainer(title: "Task Info", children: [_buildTaskInfoSection()]),
             const SizedBox(height: 20),
             _buildSectionContainer(
               title: "Description",
               children: [
-                Text(description,
-                    style: const TextStyle(fontSize: 15.5, height: 1.5, color: Colors.black)),
+                Text(
+                  description.isNotEmpty ? description : "No description found",
+                  style: const TextStyle(fontSize: 15.5, height: 1.5, color: Colors.black),
+                ),
               ],
             ),
             const SizedBox(height: 20),
-            if (notes.isNotEmpty)
-              _buildSectionContainer(
-                title: "Notes",
-                children: notes.map((note) {
-                  return Container(
-
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(note['user']['name'] ?? '',
-                                  style: const TextStyle(fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 4),
-                              Text(note['content'] ?? ''),
-                              const SizedBox(height: 4),
-                              FormattedDateTimeText(
-                                isoString: note['created_at'],
-                                style: const TextStyle(fontSize: 12, color: Colors.black54),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
+            _buildSectionContainer(title: "Attachments", children: [_buildImageGallery(taskImages)]),
+            const SizedBox(height: 20),
+            notes.isNotEmpty
+                ? _buildSectionContainer(
+              title: "Notes",
+              children: notes.map((note) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(note['user']['name'] ?? '',
+                                style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 4),
+                            Text(note['content'] ?? ''),
+                            const SizedBox(height: 4),
+                            FormattedDateTimeText(
+                              isoString: note['created_at'],
+                              style: const TextStyle(fontSize: 12, color: Colors.black54),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                );
+              }).toList(),
+            )
+                : _buildSectionContainer(title: "Notes", children: [const Text("No notes available")]),
           ],
         ),
       ),
@@ -152,12 +145,10 @@ class TaskDetailPage extends StatelessWidget {
         _buildLabelChipRow(),
         const SizedBox(height: 16),
         _buildSingleField("Deadline", deadline),
-        //_buildSingleField("Repetition", _format(repetition)),
         if (repeatUntil != null) _buildSingleField("Repeat Until", repeatUntil!),
         _buildSingleField("Created By", createdBy),
         _buildSingleField("Assigned To", assignedTo),
         _buildSingleField("Department", departmentName),
-       // _buildSingleField("Subdepartment", subdepartments),
         _buildSingleField("Created At", createdAt),
         _buildSingleField("Updated At", updatedAt),
       ],
@@ -210,82 +201,127 @@ class TaskDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildImageGallery(List<dynamic> images) {
-    if (images.isEmpty) {
-      return const Text("No images available.", style: TextStyle(color: Colors.red));
+  Widget _buildImageGallery(List<dynamic> files) {
+    if (files.isEmpty) {
+      return const Text("No Attachments found.", style: TextStyle(color: Colors.black));
     }
 
-    return SizedBox(
-      height: 140,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: images.length,
-        itemBuilder: (context, index) {
-          // Check if images is a list of strings (URLs)
-          final imageUrl = images[index]; // Assuming it's a String URL
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: files.map<Widget>((fileUrl) {
+        final uri = Uri.parse(fileUrl);
+        final filename = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'file';
+        final extension = filename.contains('.') ? filename.split('.').last.toLowerCase() : 'unknown';
 
-          return GestureDetector(
-            onTap: () => _showFullImage(context, imageUrl),
-            child: Container(
-              width: 130,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 6,
-                    offset: const Offset(2, 4),
+        return GestureDetector(
+          onTap: () async {
+            if (['jpg', 'jpeg', 'png'].contains(extension)) {
+              Get.dialog(
+                Dialog(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    child: Image.network(
+                      fileUrl,
+                      fit: BoxFit.contain,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return SizedBox(
+                          height: 300,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes!)
+                                  : null,
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) => const Center(
+                        child: Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                      ),
+                    ),
                   ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  width: 130,
-                  height: 130,
-                  loadingBuilder: (context, child, progress) {
-                    if (progress == null) return child;
-                    return const Center(child: CircularProgressIndicator());
-                  },
-                  errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 50),
                 ),
-              ),
+              );
+            } else if (extension == 'pdf') {
+              Get.dialog(
+                Dialog(
+                  child: SizedBox(
+                    width: 300,
+                    height: 400,
+                    child: SfPdfViewer.network(fileUrl),
+                  ),
+                ),
+              );
+            } else {
+              Get.snackbar(
+                "Preview not supported",
+                "Cannot preview .$extension files.",
+                snackPosition: SnackPosition.BOTTOM,
+              );
+            }
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  void _showFullImage(BuildContext context, String imageUrl) {
-    showDialog(
-      context: context,
-      builder: (_) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: InteractiveViewer(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
-              ),
+            child: Row(
+              children: [
+                const Icon(Icons.attach_file, color: Colors.black87),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        filename,
+                        style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        "Extension: .$extension",
+                        style: const TextStyle(color: Colors.black54, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.download_rounded, color: Colors.black),
+                  onPressed: () => _downloadFile(fileUrl, filename),
+                ),
+              ],
             ),
           ),
-        ),
-      ),
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildSectionContainer({
-    required String title,
-    required List<Widget> children,
-  }) {
+  void _downloadFile(String url, String filename) async {
+    try {
+      final dir = Directory('/storage/emulated/0/Download');
+      if (!await dir.exists()) await dir.create(recursive: true);
+      final filePath = '${dir.path}/$filename';
+
+      await Dio().download(url, filePath);
+      Get.snackbar("Download Complete", "File saved to Download folder.",
+          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green);
+    } catch (e) {
+      Get.snackbar("Download Failed", "Could not download the file.",
+          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red);
+    }
+  }
+
+  Widget _buildSectionContainer({required String title, required List<Widget> children}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -302,3 +338,4 @@ class TaskDetailPage extends StatelessWidget {
     );
   }
 }
+
