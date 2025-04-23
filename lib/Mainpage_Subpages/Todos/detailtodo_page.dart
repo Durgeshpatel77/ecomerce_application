@@ -3,9 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
-import '../All_custom_widgets/FormattedDateTime_custom.dart';
-import '../Controller/ttodo_controller.dart';
+import '../../All_custom_widgets/FormattedDateTime_custom.dart';
+import '../../Controller/ttodo_controller.dart';
 
 class TodoDetailPage extends StatelessWidget {
   final String id;
@@ -207,50 +208,138 @@ class TodoDetailPage extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Attachments",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        if (attachments != null && attachments.isNotEmpty)
-                          Column(
-                            children: attachments.map<Widget>((attachment) {
-                              return Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 2,
-                                margin: const EdgeInsets.symmetric(vertical: 6),
-                                child: ListTile(
-                                  leading: const Icon(Icons.attach_file),
-                                  title: Text(attachment['file_name'] ?? 'No name'),
-                                  subtitle: Text(attachment['file_type'] ?? 'Unknown type'),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.download),
-                                    onPressed: () async {
-                                      await downloadFile(
-                                        attachment['image_url'],
-                                        attachment['file_name'],
-                                      );
-                                    },
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          )
-                        else
+                      child:
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           const Text(
-                            "No attachment found",
-                            style: TextStyle(fontSize: 16, fontStyle: FontStyle.normal),
+                            "Attachments",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                      ],
-                    ),
+                          const SizedBox(height: 10),
+                          if (attachments != null && attachments.isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: attachments.map<Widget>((attachment) {
+                                final fileUrl = attachment['image_url'] ?? '';
+                                final fileName = attachment['file_name'] ?? 'Unknown';
+                                final fileType = attachment['file_type']?.toLowerCase() ?? 'unknown';
+
+                                final uri = Uri.parse(fileUrl);
+                                final extension = uri.pathSegments.isNotEmpty
+                                    ? uri.pathSegments.last.split('.').last.toLowerCase()
+                                    : 'unknown';
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    if (['jpg', 'jpeg', 'png'].contains(extension)) {
+                                      Get.dialog(
+                                        Dialog(
+                                          child: Container(
+                                            padding: const EdgeInsets.all(12),
+                                            child: Image.network(
+                                              fileUrl,
+                                              fit: BoxFit.contain,
+                                              loadingBuilder: (context, child, loadingProgress) {
+                                                if (loadingProgress == null) return child;
+                                                return SizedBox(
+                                                  height: 300,
+                                                  child: Center(
+                                                    child: CircularProgressIndicator(
+                                                      value: loadingProgress.expectedTotalBytes != null
+                                                          ? loadingProgress.cumulativeBytesLoaded /
+                                                          (loadingProgress.expectedTotalBytes!)
+                                                          : null,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              errorBuilder: (context, error, stackTrace) => const Center(
+                                                child: Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    } else if (extension == 'pdf') {
+                                      Get.dialog(
+                                        Dialog(
+                                          child: SizedBox(
+                                            width: 300,
+                                            height: 400,
+                                            child: SfPdfViewer.network(fileUrl),
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      Get.snackbar(
+                                        "Preview not supported",
+                                        "Cannot preview .$extension files.",
+                                        snackPosition: SnackPosition.BOTTOM,
+                                      );
+                                    }
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 6),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.05),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.attach_file, color: Colors.black87),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                fileName,
+                                                style: const TextStyle(
+                                                  color: Colors.black87,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              Text(
+                                                "Extension: .$extension",
+                                                style: const TextStyle(
+                                                  color: Colors.black54,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.download_rounded, color: Colors.black),
+                                          onPressed: () async {
+                                            await downloadFile(fileUrl, fileName);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            )
+                          else
+                            const Text(
+                              "No attachment found",
+                              style: TextStyle(fontSize: 16, fontStyle: FontStyle.normal),
+                            ),
+                        ],
+                      ),
                   ),
 
                   /// Equal vertical spacing
@@ -379,7 +468,7 @@ Widget _pillChip1(String label, String value, Color color) {
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     decoration: BoxDecoration(
       color: color.withOpacity(0.15),
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(10),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,

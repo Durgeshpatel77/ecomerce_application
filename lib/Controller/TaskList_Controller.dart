@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
 import 'Auth_Controller.dart';
 
 class TaskController extends GetxController with GetTickerProviderStateMixin {
@@ -12,7 +15,7 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
   var selectedTabIndex = 0.obs;
   late TabController tabController;
 
-  final statusTabs = ['not_started', 'in_progress','done','delayed'];
+  final statusTabs = ['not_started', 'in_progress', 'done', 'delayed'];
 
   @override
   void onInit() {
@@ -47,9 +50,6 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
         },
       );
 
-      print("Status Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
-
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         taskList.value = List<Map<String, dynamic>>.from(data['data']['data']);
@@ -62,6 +62,7 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
       isLoading(false);
     }
   }
+
   Future<Map<String, dynamic>> getTaskDetailById(String taskId) async {
     final authController = Get.find<AuthController>();
     final accessToken = await authController.getToken();
@@ -74,36 +75,52 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
       Uri.parse('https://inagold.in/api/get_task_details/$taskId'),
       headers: {
         'Accept': 'application/json',
-        'Authorization': 'Bearer $accessToken', // Add 'Bearer ' prefix
+        'Authorization': 'Bearer $accessToken',
       },
     );
 
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       final taskData = jsonResponse['data'];
-      final taskUuid = taskData['uuid']; // <--- Extract this
 
-      // Log full task_images array
-      print("Raw task_images: ${taskData['task_images']}");
-
-      // Extract and fix image URLs
       final taskImages = taskData['task_images'] as List<dynamic>;
       final imageUrls = taskImages.map((img) {
         final rawUrl = img['image_url'] as String;
-        return rawUrl.startsWith('http')
-            ? rawUrl
-            : 'https://inagold.in$rawUrl'; // Prefix if relative
+        return rawUrl.startsWith('http') ? rawUrl : 'https://inagold.in$rawUrl';
       }).toList();
-
-      print("Fixed image URLs: $imageUrls");
 
       return {
         'task': taskData,
-        'uuid': taskData['uuid'],       // Include this
+        'uuid': taskData['uuid'],
         'imageUrls': imageUrls,
       };
     } else {
       throw Exception('Failed to load task details');
+    }
+  }
+
+  // 🔽 File download logic
+  Future<void> downloadFile(String url, String filename) async {
+    try {
+      final dio = Dio();
+
+      final directory = await getApplicationDocumentsDirectory();
+      final savePath = '${directory.path}/$filename';
+
+      await dio.download(
+        url,
+        savePath,
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            print("Download progress: ${(received / total * 100).toStringAsFixed(0)}%");
+          }
+        },
+      );
+
+      Get.snackbar("Download Complete", "Saved to $savePath");
+    } catch (e) {
+      print("Download error: $e");
+      Get.snackbar("Download Failed", "Unable to download file");
     }
   }
 

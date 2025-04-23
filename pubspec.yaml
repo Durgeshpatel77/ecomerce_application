@@ -40,8 +40,9 @@ dependencies:
   url_launcher:
   shared_preferences: ^2.5.3
   dio: ^5.0.0
+  file_picker: ^10.1.2
   path_provider: ^2.1.5
-
+  syncfusion_flutter_pdfviewer: ^29.1.38
 dev_dependencies:
   flutter_test:
     sdk: flutter

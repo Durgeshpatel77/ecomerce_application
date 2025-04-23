@@ -1,9 +1,9 @@
-import 'package:ecomerce_application/Mainpage_Subpages/Tasklist_page.dart';
+import 'package:ecomerce_application/Mainpage_Subpages/Tasks/Tasklist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../Controller/Auth_Controller.dart';
-import '../Mainpage_Subpages/listtodo_page.dart';
+import '../Mainpage_Subpages/Todos/listtodo_page.dart';
 
 
 class HomeScreen extends StatelessWidget  {

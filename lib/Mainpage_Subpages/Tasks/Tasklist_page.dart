@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../All_custom_widgets/TaskList_Custom.dart';
-import '../Controller/TaskList_Controller.dart';
+import '../../All_custom_widgets/TaskList_Custom.dart';
+import '../../Controller/TaskList_Controller.dart';
 
 class TasklistPage extends StatelessWidget {
   const TasklistPage({super.key});
@@ -34,10 +34,6 @@ class TasklistPage extends StatelessWidget {
           ),
         ),
         body: Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
           return Column(
             children: [
               Container(
@@ -130,19 +126,24 @@ class TasklistPage extends StatelessWidget {
                         .where((task) => task['status'] == status)
                         .toList();
 
+                    // Show CircularProgress if still loading and no data available
                     if (filtered.isEmpty) {
-                      return const Center(child: Text("No tasks found"));
+                      if (controller.isLoading.value) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else {
+                        return const Center(child: Text("No tasks found"));
+                      }
                     }
 
                     return RefreshIndicator(
-                    onRefresh: () async {
-                      await controller.fetchTasks();
-                    },
+                      onRefresh: () async {
+                        await controller.fetchTasks();
+                      },
                       child: ListView.builder(
                         itemCount: filtered.length,
                         itemBuilder: (context, index) {
                           final task = filtered[index];
-                      
+
                           return GestureDetector(
                             onTap: () {
                               Get.toNamed('/TaskDetailPage', arguments: task);
@@ -153,8 +154,6 @@ class TasklistPage extends StatelessWidget {
                               description: task['work_detail']?.toString() ?? 'No Description',
                               deadline: task['deadline']?.toString() ?? '',
                               priority: task['priority']?.toString() ?? '',
-                            //  workType: task['work_type']?.toString() ?? '',
-                            //  repetition: task['repetition']?.toString() ?? '',
                               taskId: task['id']?.toString() ?? '',
                             ),
                           );

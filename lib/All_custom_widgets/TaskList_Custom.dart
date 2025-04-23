@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 
 import '../Controller/Taskstatus_contoller.dart';
 import '../Controller/TaskList_Controller.dart';
-import '../Mainpage_Subpages/Taskdetail_page.dart';
+import '../Mainpage_Subpages/Tasks/Taskdetail_page.dart';
 
 class TasklistCustom extends StatelessWidget {
   final String taskId;
