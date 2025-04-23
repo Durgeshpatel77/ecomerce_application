@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../Login_Pages/Auth_screen.dart';
 import '../Login_Pages/Main_page.dart';
@@ -49,7 +49,7 @@ class AuthController extends GetxController {
         print("Full Token: $fullToken");
 
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('access_token', fullToken);
+        await prefs.setString('auth_token', fullToken);
 
         await fetchUserInfo();
 
@@ -85,7 +85,7 @@ class AuthController extends GetxController {
 
   Future<void> fetchUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('access_token');
+    final token = prefs.getString('auth_token');
 
     if (token == null) return;
 
@@ -119,7 +119,7 @@ class AuthController extends GetxController {
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('access_token');
+    await prefs.remove('auth_token');
     await prefs.remove('user_name');
     await prefs.remove('user_email');
 
@@ -140,12 +140,12 @@ class AuthController extends GetxController {
 
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('access_token');
+    return prefs.getString('auth_token');
   }
 
   Future<bool> clearToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.remove('access_token');
+    return prefs.remove('auth_token');
   }
 
   Future<void> loadUserFromPrefs() async {

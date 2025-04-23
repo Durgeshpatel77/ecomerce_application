@@ -6,17 +6,10 @@ import 'package:http/http.dart' as http;
 
 class TodoStatusController extends GetxController {
   var statusList = <Map<String, dynamic>>[].obs;
+  var statusCounts = <String, dynamic>{}.obs;  // Stores counts of statuses
   var isLoading = false.obs;
   var selectedStatus = Rxn<Map<String, dynamic>>();  // Stores the selected status
   var todoList = <Map<String, dynamic>>[].obs;
-
-  void updateTodoStatusInUI(String todoUuid, String newStatus) {
-    final index = todoList.indexWhere((todo) => todo['uuid'] == todoUuid);
-    if (index != -1) {
-      todoList[index]['status'] = newStatus;
-      todoList.refresh(); // Notify GetX listeners to update the UI
-    }
-  }
 
   /// Fetch all todo statuses
   Future<void> fetchStatuses() async {
@@ -44,6 +37,7 @@ class TodoStatusController extends GetxController {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         statusList.value = List<Map<String, dynamic>>.from(data['data']);
+        fetchStatusCounts();  // Fetch counts after statuses
       } else {
         Get.snackbar("Error", "Failed to load todo statuses");
       }
@@ -52,6 +46,40 @@ class TodoStatusController extends GetxController {
       Get.snackbar("Error", "Something went wrong: $e");
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// Fetch the counts of todos per status
+  Future<void> fetchStatusCounts() async {
+    try {
+      final authController = Get.find<AuthController>();
+      final accessToken = await authController.getToken();
+
+      if (accessToken == null || accessToken.isEmpty) {
+        Get.snackbar("Auth Error", "No access token. Please login.");
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse("https://inagold.in/api/count_todos"),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Accept': 'application/json',
+        },
+      );
+
+      print("Status Count API Response: ${response.statusCode}");
+      print("Status Count API Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final counts = Map<String, dynamic>.from(data['data']);
+        statusCounts.value = counts;
+      } else {
+        Get.snackbar("Error", "Failed to fetch status counts");
+      }
+    } catch (e) {
+      Get.snackbar("Exception", "Something went wrong: $e");
     }
   }
 
@@ -73,7 +101,7 @@ class TodoStatusController extends GetxController {
       }
 
       final response = await http.post(
-        Uri.parse("https://inagold.in/api/update_todo_status/$uuid"), // Update this endpoint
+        Uri.parse("https://inagold.in/api/update_todo_status/$uuid"),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
@@ -122,6 +150,15 @@ class TodoStatusController extends GetxController {
         backgroundColor: Colors.red,
         snackPosition: SnackPosition.BOTTOM,
       );
+    }
+  }
+
+  /// Update todo status in UI directly
+  void updateTodoStatusInUI(String todoUuid, String newStatus) {
+    final index = todoList.indexWhere((todo) => todo['uuid'] == todoUuid);
+    if (index != -1) {
+      todoList[index]['status'] = newStatus;
+      todoList.refresh(); // Notify GetX listeners to update the UI
     }
   }
 }
