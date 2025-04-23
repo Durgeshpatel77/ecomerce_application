@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:ecomerce_application/Controller/ttodo_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Mainpage_Subpages/Todos/listtodo_page.dart';
 
 class AddTodoController extends GetxController {
   var titleController = TextEditingController();
@@ -63,7 +66,6 @@ class AddTodoController extends GetxController {
 
   // Submit Todo
   Future<void> submitTodo() async {
-    // Ensure user is authenticated
     String? authToken = await getAuthToken();
 
     if (authToken == null) {
@@ -71,11 +73,20 @@ class AddTodoController extends GetxController {
       return;
     }
 
-    // Validate the status value to be one of the allowed values
+    if (selectedPriority.value.isEmpty) {
+      Get.snackbar("Error", "Please select a priority.", snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
     if (!['Pending', 'In Progress', 'Completed', 'Cancelled'].contains(selectedStatus.value)) {
       Get.snackbar("Error", "Invalid status selected.", snackPosition: SnackPosition.BOTTOM);
       return;
     }
+
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
 
     try {
       var request = http.MultipartRequest(
@@ -86,39 +97,39 @@ class AddTodoController extends GetxController {
       request.fields['title'] = titleController.text;
       request.fields['description'] = descriptionController.text;
       request.fields['due_date'] = DateFormat("yyyy-MM-dd hh:mm a").format(selectedDateTime.value!);
-      request.fields['priority'] = selectedPriority.value.toLowerCase(); // Ensure priority is formatted correctly
-      request.fields['status'] = selectedStatus.value; // Status should be a valid value
-
-      // Add Authorization header
-      request.headers['Authorization'] = 'Bearer $authToken'; // Add the token here
+      request.fields['priority'] = selectedPriority.value.toLowerCase();
+      request.fields['status'] = selectedStatus.value;
+      request.headers['Authorization'] = 'Bearer $authToken';
 
       if (selectedAttachmentPath.value.isNotEmpty) {
-        request.files.add(await http.MultipartFile.fromPath(
-          'attachment',
-          selectedAttachmentPath.value,
-        ));
+        var file = await http.MultipartFile.fromPath('attachment', selectedAttachmentPath.value);
+        request.files.add(file);
       }
 
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
+      var response = await request.send();
+      var responseData = await http.Response.fromStream(response);
 
-      print('Status Code of add todo: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      Get.back(); // Close the loading dialog
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.snackbar("Success", "Todo submitted", snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar("Success", "Todo submitted successfully", snackPosition: SnackPosition.BOTTOM);
 
-        // Reset form
+        // Clear form
         titleController.clear();
         descriptionController.clear();
         selectedDateTime.value = null;
         selectedPriority.value = '';
         selectedStatus.value = '';
         selectedAttachmentPath.value = '';
-      } else {
+
+        // Navigate to todo list page (replace with your actual route/page)
+        Get.off(() => ListTodoPage(), binding: BindingsBuilder(() {
+          Get.put(TodoController()).fetchTodos();
+        }));      } else {
         Get.snackbar("Error", "Failed to submit Todo", snackPosition: SnackPosition.BOTTOM);
       }
     } catch (e) {
+      Get.back(); // Close the loading dialog if error occurs
       Get.snackbar("Error", "An error occurred: $e", snackPosition: SnackPosition.BOTTOM);
     }
   }

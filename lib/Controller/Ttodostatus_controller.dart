@@ -39,7 +39,7 @@ class TodoStatusController extends GetxController {
         statusList.value = List<Map<String, dynamic>>.from(data['data']);
         fetchStatusCounts();  // Fetch counts after statuses
       } else {
-        Get.snackbar("Error", "Failed to load todo statuses");
+       // Get.snackbar("Error", "Failed to load todo statuses");
       }
     } catch (e) {
       print('Error fetching todo statuses: $e');
@@ -76,7 +76,7 @@ class TodoStatusController extends GetxController {
         final counts = Map<String, dynamic>.from(data['data']);
         statusCounts.value = counts;
       } else {
-        Get.snackbar("Error", "Failed to fetch status counts");
+       // Get.snackbar("Error", "Failed to fetch status counts");
       }
     } catch (e) {
       Get.snackbar("Exception", "Something went wrong: $e");
@@ -136,12 +136,7 @@ class TodoStatusController extends GetxController {
           );
         }
       } else {
-        Get.snackbar(
-          "Error",
-          "Failed to update todo status",
-          backgroundColor: Colors.red,
-          snackPosition: SnackPosition.BOTTOM,
-        );
+       // Get.snackbar("Error", "Failed to update todo status", backgroundColor: Colors.red, snackPosition: SnackPosition.BOTTOM,);
       }
     } catch (e) {
       Get.snackbar(

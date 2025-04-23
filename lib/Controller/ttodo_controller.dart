@@ -52,7 +52,7 @@ class TodoController extends GetxController {
         final todos = data['data']['data'];
         todoList.assignAll(todos);
       } else {
-        Get.snackbar("Error", "Failed to fetch todos");
+      //  Get.snackbar("Error", "Failed to fetch todos");
       }
 
       print("Status Count Status Code: ${statusResponse.statusCode}");
@@ -64,7 +64,7 @@ class TodoController extends GetxController {
         statusCount.assignAll(statusMap);
         print("Updated Status Count: $statusCount");
       } else {
-        Get.snackbar("Error", "Failed to fetch status counts");
+      //  Get.snackbar("Error", "Failed to fetch status counts");
       }
     } catch (e) {
       print("Error fetching todos: $e");
@@ -100,7 +100,7 @@ class TodoController extends GetxController {
         final data = jsonDecode(response.body);
         todoDetail.value = data['data'] ?? {};
       } else {
-        Get.snackbar("Error", "Failed to fetch todo details");
+        //Get.snackbar("Error", "Failed to fetch todo details");
       }
     } catch (e) {
       print("Error fetching todo detail: $e");
