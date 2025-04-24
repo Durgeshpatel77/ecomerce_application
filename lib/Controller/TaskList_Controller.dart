@@ -10,7 +10,6 @@ import 'Auth_Controller.dart';
 class TaskController extends GetxController with GetTickerProviderStateMixin {
   var taskList = <Map<String, dynamic>>[].obs;
   var isLoading = false.obs;
-
   // Tabs
   var selectedTabIndex = 0.obs;
   late TabController tabController;

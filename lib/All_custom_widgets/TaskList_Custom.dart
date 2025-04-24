@@ -149,6 +149,7 @@ class TasklistCustom extends StatelessWidget {
                   ],
                 ),
                 Text(
+                  (description.isEmpty)?"No description Found":
                   description.capitalizeFirst ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

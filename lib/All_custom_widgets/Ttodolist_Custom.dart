@@ -104,9 +104,9 @@ class TodoItemWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                description.length > 50
-                    ? "${description.substring(0, 50)}..."
-                    : description,
+                (description.isEmpty)
+                    ? "No description Found"
+                    : description.capitalizeFirst ?? '',
                 style: const TextStyle(fontSize: 13, color: Colors.black87),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -124,28 +124,37 @@ class TodoItemWidget extends StatelessWidget {
   Widget _buildAttachments() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: attachments!.map((attachment) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Row(
-            children: [
-              const Icon(Icons.attach_file, size: 16, color: Colors.black87),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: () {
-                  if (attachment is String && Uri.parse(attachment).isAbsolute) {
-                    _launchURL(attachment);
-                  }
-                },
-                child: Text(
-                  attachment.toString(),
-                  style: const TextStyle(fontSize: 12, color: Colors.black87),
-                ),
+      children:
+          attachments!.map((attachment) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.attach_file,
+                    size: 16,
+                    color: Colors.black87,
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () {
+                      if (attachment is String &&
+                          Uri.parse(attachment).isAbsolute) {
+                        _launchURL(attachment);
+                      }
+                    },
+                    child: Text(
+                      attachment.toString(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
     );
   }
 
