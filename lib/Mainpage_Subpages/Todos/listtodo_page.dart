@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../All_custom_widgets/Ttodolist_Custom.dart';
-import '../../Controller/Ttodostatus_controller.dart';
-import '../../Controller/ttodo_controller.dart';
+import '../../Controller/Todos contoller/Ttodostatus_controller.dart';
+import '../../Controller/Todos contoller/ttodo_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'AddTodo_page.dart';

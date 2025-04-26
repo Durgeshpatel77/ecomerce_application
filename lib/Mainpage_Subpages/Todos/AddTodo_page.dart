@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../Controller/add_todo_controller.dart';
+
+import '../../Controller/Todos contoller/add_todo_controller.dart';
 
 class AddtodoPage extends StatelessWidget {
   final AddTodoController controller = Get.put(AddTodoController());
@@ -51,12 +52,6 @@ class AddtodoPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _buildDateTimeField(
-                context: context,
-                selectedDateTime: controller.selectedDateTime,
-                onTap: () => controller.selectDateTime(context),
-              ),
-              const SizedBox(height: 16),
               _buildCard(
                 child: Obx(
                       () => DropdownButtonFormField<String>(
@@ -92,16 +87,20 @@ class AddtodoPage extends StatelessWidget {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 16),
+              _buildDateTimeField(
+                context: context,
+                selectedDateTime: controller.selectedDateTime,
+                onTap: () => controller.selectDateTime(context),
+              ),
+
               const SizedBox(height: 16),
               _buildCard(
-                child: Obx(
-                      () => Column(
+                child: Obx(() => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Attachment",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      const Text("Attachment", style: TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       GestureDetector(
                         onTap: controller.pickAttachment,
@@ -109,30 +108,40 @@ class AddtodoPage extends StatelessWidget {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: Colors.grey[100],
-                            border: Border.all(color: Colors.grey.shade300),
+                            border: Border.all(color: Colors.black),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Row(
-                            children: [
-                              const Icon(Icons.attach_file, color: Colors.deepPurple),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  controller.selectedAttachmentPath.value.isEmpty
-                                      ? "No file selected"
-                                      : controller.selectedAttachmentPath.value.split('/').last,
-                                  style: const TextStyle(color: Colors.black87),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
+                            children: const [
+                              Icon(Icons.attach_file, color: Colors.deepPurple),
+                              SizedBox(width: 10),
+                              Text("Select Files", style: TextStyle(color: Colors.black87)),
                             ],
                           ),
                         ),
                       ),
+                      const SizedBox(height: 10),
+                      ...controller.selectedAttachmentPaths.map((path) => Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.insert_drive_file, size: 16),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                path.split('/').last,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
                     ],
-                  ),
+                  )),
+
                 ),
-              ),
+
               const SizedBox(height: 24),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
