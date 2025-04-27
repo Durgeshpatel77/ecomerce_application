@@ -113,6 +113,8 @@ class ListTodoPage extends StatelessWidget {
                                   Get.to(
                                     () => TodoDetailPage(
                                       id: item['id'].toString(),
+                                      todo: item,
+
                                     ),
                                   );
                                 },

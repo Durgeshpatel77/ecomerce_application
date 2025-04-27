@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../All_custom_widgets/FormattedDateTime_custom.dart';
@@ -11,8 +12,9 @@ import 'Add_notes.dart';
 
 class TodoDetailPage extends StatelessWidget {
   final String id;
+  final Map<String, dynamic> todo;
 
-  const TodoDetailPage({Key? key, required this.id}) : super(key: key);
+  const TodoDetailPage({Key? key, required this.id, required this.todo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,14 +52,22 @@ class TodoDetailPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddNotes(),
-            ),
-          );
-        },
+          onPressed: () async {
+            final prefs = await SharedPreferences.getInstance();
+            final authToken = prefs.getString('access_token') ?? '';
+            final uuid = todo['uuid']; // todo is accessible because it's a class member
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddNotes(
+                  uuid: uuid,
+                  authToken: authToken,
+                ),
+              ),
+            );
+
+          },
         child: const Icon(Icons.add),
       ),
       body: Obx(() {

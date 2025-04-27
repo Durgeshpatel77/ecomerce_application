@@ -6,10 +6,10 @@ import 'package:http/http.dart' as http;
 
 class AddNotesController extends GetxController {
   var isLoading = false.obs;
-  var notecontroller = "".obs;
+  final TextEditingController notecontroller = TextEditingController();
 
   Future<void> submitNotes(String uuid, String authToken) async {
-    final content = notecontroller.value.trim();
+    final content = notecontroller.text.trim();
 
     if (content.isEmpty) {
       Get.snackbar(
@@ -20,6 +20,7 @@ class AddNotesController extends GetxController {
       );
       return;
     }
+
     isLoading.value = true;
     try {
       final response = await http.post(
@@ -30,8 +31,9 @@ class AddNotesController extends GetxController {
         },
         body: jsonEncode({"content": content}),
       );
+
       final data = jsonDecode(response.body);
-      print("Add mote status code is:${response.statusCode}");
+      print("Add note status code is: ${response.statusCode}");
 
       if (data['success'] == true) {
         Get.snackbar(
@@ -40,8 +42,11 @@ class AddNotesController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
         );
-        notecontroller.value = ''; // Clear the text after submission
-      } else {
+        notecontroller.clear(); // Clear the text field
+        await Future.delayed(const Duration(seconds: 1)); // (optional) short delay to show the snackbar
+        Get.back(); // 👈 go back and return true to previous screen
+      }
+      else {
         Get.snackbar(
           "Error",
           "Failed to add note",
@@ -59,5 +64,11 @@ class AddNotesController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  @override
+  void onClose() {
+    notecontroller.dispose();
+    super.onClose();
   }
 }
