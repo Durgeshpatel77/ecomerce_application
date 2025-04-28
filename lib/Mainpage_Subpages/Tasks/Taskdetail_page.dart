@@ -304,7 +304,12 @@ class TaskDetailPage extends StatelessWidget {
       Get.snackbar(
         "Preview not supported",
         "Cannot preview .$extension files.",
-        snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
       );
     }
   }
@@ -334,9 +339,22 @@ class TaskDetailPage extends StatelessWidget {
       // Scan the file so it's visible in the gallery
       await _scanFile(filePath);
 
-      Get.snackbar('Download Complete', 'Saved to: $filePath');
+      Get.snackbar('Download Complete', 'Saved to: $filePath',
+          backgroundColor: Colors.grey,
+          snackPosition: SnackPosition.TOP,
+          icon: Icon(Icons.check_circle, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white);
     } catch (e) {
-      Get.snackbar('Download Failed', e.toString());
+      Get.snackbar('Download Failed', e.toString(),
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+      );
     }
   }
 

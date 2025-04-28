@@ -1,10 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'Auth_Controller.dart';
 
 class TaskController extends GetxController with GetTickerProviderStateMixin {
@@ -113,49 +110,6 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
       throw Exception('Failed to load task details');
     }
   }
-
-  // 🔽 File download logic
-  Future<void> downloadFile(String url, String filename) async {
-    try {
-      final dio = Dio();
-
-      // Get the application documents directory
-      final directory = await getApplicationDocumentsDirectory();
-      final savePath = '${directory.path}/$filename';
-
-      // Download the file
-      await dio.download(
-        url,
-        savePath,
-        onReceiveProgress: (received, total) {
-          if (total != -1) {
-           // print("Download progress: ${(received / total * 100).toStringAsFixed(0)}%");
-          }
-        },
-      );
-
-      // Show a snackbar with the correct file path
-      Get.snackbar(
-        "Download Complete1",
-       "Saved to $filename",  // Using savePath here
-        backgroundColor: Colors.grey.shade100,
-        snackPosition: SnackPosition.TOP,
-        icon: Icon(Icons.check_circle, size: 33, color: Colors.white),
-        duration: Duration(seconds: 2),
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
-        colorText: Colors.white,
-      );
-    } catch (e) {
-      print("Download error: $e");
-      Get.snackbar("Download Failed", "Unable to download file");
-    }
-  }
-
-  List<Map<String, dynamic>> get filteredTasks {
-    final status = statusTabs[selectedTabIndex.value];
-    return taskList.where((task) => task['status'] == status).toList();
-  }
-
   @override
   void onClose() {
     tabController.dispose();
