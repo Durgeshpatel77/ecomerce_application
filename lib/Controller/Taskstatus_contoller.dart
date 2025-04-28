@@ -95,34 +95,49 @@ class TaskStatusController extends GetxController {
         if (oldStatus == newStatus) {
           Get.snackbar(
             "Info",
-            "Status was already in '$newStatus'",
-            backgroundColor: Colors.green,
-            snackPosition: SnackPosition.BOTTOM,
+            "Status Was Already In Selected Status..",
+              backgroundColor: Colors.green,
+              snackPosition: SnackPosition.BOTTOM,
+              icon: Icon(Icons.done, size: 33),
+              duration: Duration(seconds: 2),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+              colorText: Colors.white
           );
         } else {
           Get.snackbar(
             "Success",
-            "Status changed from '$oldStatus' to '$newStatus'",
+            "Status Changed Successfully...",
             backgroundColor: Colors.green,
             snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.check_circle, size: 33,color: Colors.white,),
+            duration: Duration(seconds: 2),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+            colorText: Colors.white
           );
         }
       } else {
         Get.snackbar(
           "Error",
-          "Failed to update status",
-          backgroundColor: Colors.red,
-          maxWidth: 20,
-          snackPosition: SnackPosition.BOTTOM,
+          "Failed To Update Status",
+            backgroundColor: Colors.red,
+            snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+            duration: Duration(seconds: 2),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+            colorText: Colors.white
         );
       }
     } catch (e) {
       Get.snackbar(
         "Exception",
-        "Something went wrong: $e",
+        "Something Went Wrong: $e",
         backgroundColor: Colors.red,
-        maxWidth: 20,
         snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+
       );
     }
   }

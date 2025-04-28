@@ -24,21 +24,22 @@ class TasklistCustom extends StatelessWidget {
     required this.priority,
   });
 
-  LinearGradient getRandomGradient() {
-    final random = Random();
-    final List<Color> colors = [
-      const Color.fromARGB(255, 255, 234, 214),
-      const Color.fromARGB(255, 232, 243, 255),
-      const Color.fromARGB(255, 255, 240, 245),
-      const Color.fromARGB(255, 230, 255, 247),
-      const Color.fromARGB(255, 250, 230, 255),
-      const Color.fromARGB(255, 240, 255, 240),
-    ];
-    return LinearGradient(
-      colors: [colors[random.nextInt(colors.length)], colors[random.nextInt(colors.length)]],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
+  // Helper function to map status to color
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'done':
+        return Colors.green; // Green for 'done'
+      case 'delayed':
+        return Colors.red; // Red for 'delayed'
+      case 'in_progress':
+        return Colors.orange;
+        // Orange for 'in progress'
+      case 'not_started':
+        return Colors.blue;
+      default:
+
+    return Colors.grey; // Default color for unknown status
+    }
   }
 
   String _formatDateTime(String? isoString) {
@@ -66,10 +67,8 @@ class TasklistCustom extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LinearGradient gradient = getRandomGradient();
-
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 20),
       child: GestureDetector(
         onTap: () async {
           showDialog(
@@ -93,28 +92,25 @@ class TasklistCustom extends StatelessWidget {
               deadline: fullDetails['deadline'] ?? '',
               priority: fullDetails['priority'] ?? '',
               workType: fullDetails['work_type'] ?? '',
-              //repetition: fullDetails['repetition'] ?? '',
-             // repeatUntil: fullDetails['repeat_until'] ?? '',
               createdBy: (fullDetails['created_user'] is Map) ? (fullDetails['created_user']['name'] ?? '') : '',
               assignedTo: (fullDetails['assign_to'] is Map) ? (fullDetails['assign_to']['name'] ?? '') : '',
               departmentName: (fullDetails['department_object'] is Map) ? (fullDetails['department_object']['department_name'] ?? '') : '',
-              //subdepartments: (fullDetails['sub_departments_names'] ?? '').toString(),
               taskImages: imageUrls,
               notes: List<Map<String, dynamic>>.from(fullDetails['notes'] ?? []),
               createdAt: _formatDateTime(fullDetails['created_at']),
-              updatedAt: _formatDateTime(fullDetails['updated_at']), todo: null,
+              updatedAt: _formatDateTime(fullDetails['updated_at']),
+              todo: null,
             ));
           } catch (e) {
             Navigator.pop(context);
             Get.snackbar('Error', 'Failed to load task details');
           }
         },
-        child:
-        Container(
+        child: Container(
           decoration: BoxDecoration(
-            gradient: gradient,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.black12, width: 1),
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+            border: Border.all(color: Colors.black26, width: 1),
           ),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
@@ -123,34 +119,34 @@ class TasklistCustom extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Expanded( // This prevents overflow
-                      child: Text(taskname.capitalizeFirst ?? '',
+                    Expanded(
+                      child: Text(
+                        taskname.capitalizeFirst ?? '',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
                         overflow: TextOverflow.ellipsis,
-                        maxLines: 1, // Optional: one line only
+                        maxLines: 1,
                       ),
                     ),
                     const Spacer(),
                     InkWell(
                       onTap: () => _showStatusDialog(context, taskId),
-                      child: _buildInfoChip(null, status.replaceAll('_', ' ').capitalizeFirst ?? ''),
+                      child: _buildInfoChip(null, status.replaceAll('_', ' ').capitalizeFirst ?? '', _getStatusColor(status)),
                     ),
                   ],
                 ),
                 Wrap(
                   spacing: 14,
                   children: [
-                    _buildInfoChip(Icons.calendar_today, "Deadline: ${deadline.capitalizeFirst ?? ''}"),
-                    _buildInfoChip(Icons.flag, priority.capitalizeFirst ?? ''),
+                    _buildInfoChip(Icons.calendar_today, "Deadline: ${deadline.capitalizeFirst ?? ''}", Colors.white),
+                    _buildInfoChip(Icons.flag, priority.capitalizeFirst ?? '', Colors.white),
                   ],
                 ),
                 Text(
-                  (description.isEmpty)?"No description Found":
-                  description.capitalizeFirst ?? '',
+                  (description.isEmpty) ? "No description Found" : description.capitalizeFirst ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 13, color: Colors.black87),
@@ -164,15 +160,16 @@ class TasklistCustom extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoChip(IconData? icon, String label) {
+  Widget _buildInfoChip(IconData? icon, String label, Color statusColor) {
     return Chip(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      backgroundColor: Colors.white.withOpacity(0.8),
-      avatar: icon != null ? Icon(icon, size: 16, color: Colors.black87) : null,
+      backgroundColor: statusColor, // Direct color with no opacity
+      avatar: icon != null ? Icon(icon, size: 16, color: Colors.black) : null, // Only display icon if it's not null
       label: Text(
         label,
-        style: const TextStyle(fontSize: 12, color: Colors.black87),
+        style: const TextStyle(fontSize: 12, color: Colors.black), // White text for contrast
       ),
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12), // Adjust padding to center text
     );
   }
 

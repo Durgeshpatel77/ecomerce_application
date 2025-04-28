@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../../All_custom_widgets/FormattedDateTime_custom.dart';
+import 'package:path/path.dart' as p;
 
 class TaskDetailPage extends StatelessWidget {
   final String taskname;
@@ -208,115 +209,143 @@ class TaskDetailPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: files.map<Widget>((fileUrl) {
-        final uri = Uri.parse(fileUrl);
-        final filename = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'file';
-        final extension = filename.contains('.') ? filename.split('.').last.toLowerCase() : 'unknown';
+        try {
+          final uri = Uri.parse(fileUrl);
+          final filename = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'file';
+          final extension = filename.contains('.') ? filename.split('.').last.toLowerCase() : 'unknown';
 
-        return GestureDetector(
-          onTap: () async {
-            if (['jpg', 'jpeg', 'png'].contains(extension)) {
-              Get.dialog(
-                Dialog(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    child: Image.network(
-                      fileUrl,
-                      fit: BoxFit.contain,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return SizedBox(
-                          height: 300,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes!)
-                                  : null,
+          // Check if the filename is extracted properly
+          if (filename.isEmpty || filename == 'file') {
+            return Text("Invalid file name.", style: TextStyle(color: Colors.red));
+          }
+
+          return GestureDetector(
+            onTap: () async {
+              if (['jpg', 'jpeg', 'png'].contains(extension)) {
+                Get.dialog(
+                  Dialog(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      child: Image.network(
+                        fileUrl,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return SizedBox(
+                            height: 300,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes!)
+                                    : null,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) => const Center(
-                        child: Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) => const Center(
+                          child: Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            } else if (extension == 'pdf') {
-              Get.dialog(
-                Dialog(
-                  child: SizedBox(
-                    width: 300,
-                    height: 400,
-                    child: SfPdfViewer.network(fileUrl),
+                );
+              } else if (extension == 'pdf') {
+                Get.dialog(
+                  Dialog(
+                    child: SizedBox(
+                      width: 300,
+                      height: 400,
+                      child: SfPdfViewer.network(fileUrl),
+                    ),
                   ),
-                ),
-              );
-            } else {
-              Get.snackbar(
-                "Preview not supported",
-                "Cannot preview .$extension files.",
-                snackPosition: SnackPosition.BOTTOM,
-              );
-            }
-          },
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 6),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.attach_file, color: Colors.black87),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        filename,
-                        style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        "Extension: .$extension",
-                        style: const TextStyle(color: Colors.black54, fontSize: 13),
-                      ),
-                    ],
+                );
+              } else {
+                Get.snackbar(
+                  "Preview not supported",
+                  "Cannot preview .$extension files.",
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              }
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 6),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.download_rounded, color: Colors.black),
-                  onPressed: () => _downloadFile(fileUrl, filename),
-                ),
-              ],
+                ],
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.attach_file, color: Colors.black87),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          filename,
+                          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          "Extension: .$extension",
+                          style: const TextStyle(color: Colors.black54, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.download_rounded, color: Colors.black),
+                    onPressed: () => _downloadFile(fileUrl, filename),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
+          );
+        } catch (e) {
+          // If there's an issue parsing the URL or filename, show an error
+          return Text("Error extracting filename.", style: TextStyle(color: Colors.red));
+        }
       }).toList(),
     );
   }
+
 
   void _downloadFile(String url, String filename) async {
     try {
       final dir = Directory('/storage/emulated/0/Download');
       if (!await dir.exists()) await dir.create(recursive: true);
+
       final filePath = '${dir.path}/$filename';
 
+      // Download the file
       await Dio().download(url, filePath);
-      Get.snackbar("Download Complete", "File saved to Download folder.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green);
+
+      // Extract the filename from the file path
+      String extractedFilename = p.basename(filePath);
+
+      // Display the extracted filename in the snackbar
+      Get.snackbar(
+        "Download Complete",
+        "File saved as: $extractedFilename",  // Show the extracted filename
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),  // Adjust duration for readability
+      );
     } catch (e) {
-      Get.snackbar("Download Failed", "Could not download the file.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red);
+      Get.snackbar(
+        "Download Failed",
+        "Could not download the file: $e",  // Show error details
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
+      );
     }
   }
 

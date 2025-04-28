@@ -21,8 +21,12 @@ class AuthController extends GetxController {
       Get.snackbar(
         "Error",
         "Please enter a valid code",
+        backgroundColor: Colors.red.shade400,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
+        icon: Icon(Icons.error, size: 33, color: Colors.white),
+        duration: Duration(seconds: 2),
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+        colorText: Colors.white,
       );
       return;
     }
@@ -56,18 +60,25 @@ class AuthController extends GetxController {
         Get.snackbar(
           "Success",
           "Login successful!",
+          backgroundColor: Colors.green.shade400,
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
+          icon: Icon(Icons.check_circle, size: 33, color: Colors.white),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white,
         );
         codeController.clear(); // Clear the field here ✅
 
         Get.off(() => HomeScreen());
       } else {
         Get.snackbar(
-          "Error",
-          "Login failed. Enter a valid code.",
+          "Error", "Login failed. Enter a valid code.",
+          backgroundColor: Colors.red.shade50,
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
+          icon: Icon(Icons.check_circle, size: 33, color: Colors.white),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white,
         );
       }
     } catch (e) {

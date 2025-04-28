@@ -10,6 +10,7 @@ import 'Auth_Controller.dart';
 class TaskController extends GetxController with GetTickerProviderStateMixin {
   var taskList = <Map<String, dynamic>>[].obs;
   var isLoading = false.obs;
+
   // Tabs
   var selectedTabIndex = 0.obs;
   late TabController tabController;
@@ -53,10 +54,25 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
         var data = json.decode(response.body);
         taskList.value = List<Map<String, dynamic>>.from(data['data']['data']);
       } else {
-        Get.snackbar("Error", "Failed to fetch tasks: ${response.statusCode}");
+        Get.snackbar("Error", "Failed to fetch tasks: ${response.statusCode}",
+            backgroundColor: Colors.red,
+            snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+            duration: Duration(seconds: 2),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+            colorText: Colors.white
+        );
       }
     } catch (e) {
-      Get.snackbar("Exception", e.toString());
+      Get.snackbar("Exception", e.toString(),
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+
+      );
     } finally {
       isLoading(false);
     }
@@ -103,20 +119,32 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
     try {
       final dio = Dio();
 
+      // Get the application documents directory
       final directory = await getApplicationDocumentsDirectory();
       final savePath = '${directory.path}/$filename';
 
+      // Download the file
       await dio.download(
         url,
         savePath,
         onReceiveProgress: (received, total) {
           if (total != -1) {
-            print("Download progress: ${(received / total * 100).toStringAsFixed(0)}%");
+           // print("Download progress: ${(received / total * 100).toStringAsFixed(0)}%");
           }
         },
       );
 
-      Get.snackbar("Download Complete", "Saved to $savePath");
+      // Show a snackbar with the correct file path
+      Get.snackbar(
+        "Download Complete1",
+       "Saved to $filename",  // Using savePath here
+        backgroundColor: Colors.grey.shade100,
+        snackPosition: SnackPosition.TOP,
+        icon: Icon(Icons.check_circle, size: 33, color: Colors.white),
+        duration: Duration(seconds: 2),
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+        colorText: Colors.white,
+      );
     } catch (e) {
       print("Download error: $e");
       Get.snackbar("Download Failed", "Unable to download file");

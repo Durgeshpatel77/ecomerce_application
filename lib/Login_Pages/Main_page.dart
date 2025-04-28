@@ -33,22 +33,14 @@ class HomeScreen extends StatelessWidget  {
         backgroundColor: Colors.transparent,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xfffceabb), Color(0xfff8b500)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.white
           ),
         ),
       ),
       drawer: Drawer(
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xfffceabb), Color(0xfff8b500)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.white
           ),
           child: ListView(
             padding: EdgeInsets.zero,
@@ -65,11 +57,11 @@ class HomeScreen extends StatelessWidget  {
                     SizedBox(height: 8),
                     Obx(() => Text(
                       userController.userName.value,
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
                     )),
                     Obx(() => Text(
                       userController.userEmail.value,
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                      style: TextStyle(color: Colors.black87, fontSize: 14),
                     )),
                   ],
                 ),
@@ -95,7 +87,7 @@ class HomeScreen extends StatelessWidget  {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
                       color: const Color(0xFFFFF7E6),
-                      border: Border.all(color: Colors.white.withAlpha(51)),
+                      border: Border.all(color: Colors.black.withAlpha(100)),
                     ),
                     child: Row(
                       children: [
@@ -111,13 +103,12 @@ class HomeScreen extends StatelessWidget  {
           ),
         ),
       ),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Builder(
             builder: (context) {
-              final width = MediaQuery.of(context).size.width;
-              final height = MediaQuery.of(context).size.height;
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,20 +186,8 @@ Widget buildTaskCard(IconData icon, String title, String subtitle, String count,
     child: Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.white, Color(0xFFFFF1D6)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.15)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          ),
-        ],
+        border: Border.all(color: Colors.black.withAlpha(100)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

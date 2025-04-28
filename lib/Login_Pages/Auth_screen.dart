@@ -28,12 +28,12 @@ class _SignUpState extends State<AuthScreen> {
       body:Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF2196F3), Color(0xFF90CAF9)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+        decoration:  BoxDecoration(
+          // gradient: LinearGradient(
+          //   colors: [Color(0xFF2196F3), Color(0xFF90CAF9)],
+          //   begin: Alignment.topLeft,
+          //   end: Alignment.bottomRight,
+          // ),
         ),
         child: Padding(
           padding: const EdgeInsets.only(left: 16,right: 22,top: 80),
@@ -45,7 +45,8 @@ class _SignUpState extends State<AuthScreen> {
                           padding: EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15),
-                            color: ColorConst.white.withAlpha((0.95 * 255).toInt()),
+                              border: Border.all(width: 1,color: Colors.grey),
+                              color: ColorConst.white.withAlpha((0.95 * 255).toInt()),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
