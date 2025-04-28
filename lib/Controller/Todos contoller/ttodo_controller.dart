@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,16 +20,34 @@ class TodoController extends GetxController {
   // Detail for a single todo
   var todoDetail = <String, dynamic>{}.obs;
 
+  // Helper method to retrieve the token from SharedPreferences
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token'); // Ensure the key matches
+    print("Token retrieved from SharedPreferences: $token"); // Debugging line
+    return token;
+  }
+
   // Fetch todo list and status counts
   Future<void> fetchTodos() async {
     isLoading.value = true;
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('access_token');
+      final token = await getToken();
+      print("Token of todos: $token"); // Debugging line
 
+      // Check if token is found
       if (token == null) {
-        Get.snackbar("Error", "No token found. Please login again.");
+        Get.snackbar(
+          "Error",
+          "No token found. Please login again.",
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33, color: Colors.white),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+          colorText: Colors.white,
+        );
         isLoading.value = false;
         return;
       }
@@ -35,13 +55,13 @@ class TodoController extends GetxController {
       // Fetch todo list
       final response = await http.get(
         Uri.parse('https://inagold.in/api/get_todo_list?page=1'),
-        headers: {'Authorization': token, 'Accept': 'application/json'},
+        headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
       );
 
       // Fetch status count
       final statusResponse = await http.get(
         Uri.parse('https://inagold.in/api/count_todos'),
-        headers: {'Authorization': token, 'Accept': 'application/json'},
+        headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
       );
 
       print("Todo List Status Code: ${response.statusCode}");
@@ -52,7 +72,16 @@ class TodoController extends GetxController {
         final todos = data['data']['data'];
         todoList.assignAll(todos);
       } else {
-      //  Get.snackbar("Error", "Failed to fetch todos");
+        Get.snackbar(
+          "Error",
+          "Failed to fetch todos. Status Code: ${response.statusCode}",
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33, color: Colors.white),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+          colorText: Colors.white,
+        );
       }
 
       print("Status Count Status Code: ${statusResponse.statusCode}");
@@ -64,47 +93,25 @@ class TodoController extends GetxController {
         statusCount.assignAll(statusMap);
         print("Updated Status Count: $statusCount");
       } else {
-      //  Get.snackbar("Error", "Failed to fetch status counts");
+        Get.snackbar(
+          "Error",
+          "Failed to fetch status counts. Status Code: ${statusResponse.statusCode}",
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33, color: Colors.white),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
       print("Error fetching todos: $e");
-      Get.snackbar("Error", "Something went wrong");
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  // Fetch detail of a specific todo by UUID
-  Future<void> fetchTodoDetail(String id) async {
-    isLoading.value = true;
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('access_token');
-
-      if (token == null) {
-        Get.snackbar("Error", "No token found. Please login again.");
-        isLoading.value = false;
-        return;
-      }
-
-      final response = await http.get(
-        Uri.parse('https://inagold.in/api/get_todo_details/$id'),
-        headers: {'Authorization': token, 'Accept': 'application/json'},
+      Get.snackbar(
+        "Error",
+        "Something went wrong while fetching todos.",
+        backgroundColor: Colors.red,
+        snackPosition: SnackPosition.BOTTOM,
       );
-
-      print("Todo Detail Response Code: ${response.statusCode}");
-      print("Todo Detail Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        todoDetail.value = data['data'] ?? {};
-      } else {
-        //Get.snackbar("Error", "Failed to fetch todo details");
-      }
-    } catch (e) {
-      print("Error fetching todo detail: $e");
-      Get.snackbar("Error", "Something went wrong");
     } finally {
       isLoading.value = false;
     }

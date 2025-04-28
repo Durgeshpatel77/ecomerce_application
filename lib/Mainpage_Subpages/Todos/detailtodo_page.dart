@@ -31,27 +31,18 @@ class TodoDetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Obx(() {
-          final title = controller.todoDetail.value['title'];
-          return Text(
-            _format(title),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          );
-        }),
+        title: Text("Todo Details"),
         centerTitle: true,
         elevation: 1,
         backgroundColor: Colors.transparent,
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xfffceabb), Color(0xfff8b500)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.white
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blue,
           onPressed: () async {
             final prefs = await SharedPreferences.getInstance();
             final authToken = prefs.getString('access_token') ?? '';
@@ -68,8 +59,9 @@ class TodoDetailPage extends StatelessWidget {
             );
 
           },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add,size: 32,),
       ),
+      backgroundColor: Colors.white,
       body: Obx(() {
         final todo = controller.todoDetail.value;
 
@@ -88,12 +80,8 @@ class TodoDetailPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xfffceabb), Color(0xfff8b500)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
+                    border: Border.all(color: Colors.black38,width: 1)
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,10 +94,24 @@ class TodoDetailPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 10),
+
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
+                        Row(
+                          children: [
+                            const Text(
+                              "Title: ",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            FormattedDateTimeText(isoString: todo['title']),
+                          ],
+                        ),
+
                         Wrap(
                           spacing: 10,
                           runSpacing: 8,
@@ -186,12 +188,8 @@ class TodoDetailPage extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xfffceabb), Color(0xfff8b500)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
+                    border: Border.all(color: Colors.black38,width: 1)
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,12 +221,8 @@ class TodoDetailPage extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xfffceabb), Color(0xfff8b500)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
+                        border: Border.all(color: Colors.black38,width: 1)
                     ),
                     child:
                     Column(
@@ -300,7 +294,12 @@ class TodoDetailPage extends StatelessWidget {
                                     Get.snackbar(
                                       "Preview not supported",
                                       "Cannot preview .$extension files.",
-                                      snackPosition: SnackPosition.BOTTOM,
+                                        backgroundColor: Colors.red,
+                                        snackPosition: SnackPosition.BOTTOM,
+                                        icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+                                        duration: Duration(seconds: 2),
+                                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+                                        colorText: Colors.white
                                     );
                                   }
                                 },
@@ -309,7 +308,8 @@ class TodoDetailPage extends StatelessWidget {
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(width: 1,color: Colors.black26),
+                                    borderRadius: BorderRadius.circular(10),
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black.withOpacity(0.05),
@@ -372,12 +372,8 @@ class TodoDetailPage extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xfffceabb), Color(0xfff8b500)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
+                      border: Border.all(color: Colors.black38,width: 1)
                     ),
                     child:
                     Column(
@@ -400,7 +396,8 @@ class TodoDetailPage extends StatelessWidget {
                                 margin: const EdgeInsets.only(bottom: 12),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(width: 1,color: Colors.black26),
+                                  borderRadius: BorderRadius.circular(10),
                                   color: Colors.white,
                                 ),
                                 child: Column(
@@ -431,13 +428,14 @@ class TodoDetailPage extends StatelessWidget {
                               );
                             }).toList(),
                           )
-                        else if (attachments.isEmpty && (todo['description'] ?? '').isEmpty)
+                        else
                           const Text(
-                            "No detail found.",
+                            "No notes found.",  // Display this when notes are empty
                             style: TextStyle(fontSize: 16),
                           ),
                       ],
-                    ),                  ),
+                    ),
+                  ),
                 ],
               )
             ],
@@ -467,9 +465,23 @@ Future<void> downloadFile(String url, String filename) async {
     );
 
     await _scanFile(filePath);
-    Get.snackbar('Download Complete', 'Saved to: $filePath');
+    Get.snackbar('Download Complete', 'Saved to: $filePath',
+        backgroundColor: Colors.green,
+        snackPosition: SnackPosition.BOTTOM,
+        icon: Icon(Icons.check_circle, size: 33,color: Colors.white,),
+        duration: Duration(seconds: 2),
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+        colorText: Colors.white
+    );
   } catch (e) {
-    Get.snackbar('Download Failed', e.toString());
+    Get.snackbar('Download Failed', e.toString(),
+        backgroundColor: Colors.red,
+        snackPosition: SnackPosition.BOTTOM,
+        icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+        duration: Duration(seconds: 2),
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+        colorText: Colors.white
+    );
   }
 }
 

@@ -54,6 +54,7 @@ class TasklistPage extends StatelessWidget {
                         child: TabBar(
                           controller: controller.tabController,
                           isScrollable: false,
+                          indicatorColor: Colors.blue,
                           dividerColor: Colors.transparent,
                           labelPadding: EdgeInsets.symmetric(
                             horizontal: width * 0.02,

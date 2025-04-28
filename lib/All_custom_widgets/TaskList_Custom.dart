@@ -48,10 +48,7 @@ class TasklistCustom extends StatelessWidget {
       final dateTime = DateTime.parse(isoString).toLocal();
       final date = "${dateTime.day.toString().padLeft(2, '0')} "
           "${_monthName(dateTime.month)} ${dateTime.year}";
-      final hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
-      final period = dateTime.hour >= 12 ? "PM" : "AM";
-      final time = "${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period";
-      return "$date, $time";
+      return "$date";
     } catch (_) {
       return isoString ?? '';
     }
@@ -103,7 +100,14 @@ class TasklistCustom extends StatelessWidget {
             ));
           } catch (e) {
             Navigator.pop(context);
-            Get.snackbar('Error', 'Failed to load task details');
+            Get.snackbar('Error', 'Failed to load task details',
+                backgroundColor: Colors.red,
+                snackPosition: SnackPosition.BOTTOM,
+                icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+                duration: Duration(seconds: 2),
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+                colorText: Colors.white
+            );
           }
         },
         child: Container(
@@ -127,8 +131,8 @@ class TasklistCustom extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
+                       // overflow: TextOverflow.ellipsis,
+                       maxLines: 1,
                       ),
                     ),
                     const Spacer(),
@@ -258,7 +262,14 @@ class TasklistCustom extends StatelessWidget {
                     Navigator.pop(context);
                   } catch (e) {
                     Navigator.pop(context);
-                    Get.snackbar("Error", "Failed to update status: $e");
+                    Get.snackbar("Error", "Failed to update status: $e",
+                        backgroundColor: Colors.red,
+                        snackPosition: SnackPosition.BOTTOM,
+                        icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+                        duration: Duration(seconds: 2),
+                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+                        colorText: Colors.white
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(

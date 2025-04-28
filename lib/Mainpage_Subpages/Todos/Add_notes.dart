@@ -37,8 +37,21 @@ class AddNotes extends StatelessWidget {
               onPressed: () {
                 controller.submitNotes(uuid, authToken); // Call the method to submit the note
               },
-              icon: const Icon(Icons.send),
-              label: const Text("Submit Note"),
+              label: const Text(
+                "Submit Note",
+                style: TextStyle(
+                  fontSize: 16, // Adjust text size
+                  fontWeight: FontWeight.w600, // Make text slightly bold
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text and icon color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12), // Rounded corners
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24), // Padding inside button
+                elevation: 5, // Slight shadow for depth
+              ),
             ),
             Obx(() {
               return controller.isLoading.value

@@ -15,8 +15,12 @@ class AddNotesController extends GetxController {
       Get.snackbar(
         "Error",
         "Notes content can not be empty",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
       );
       return;
     }
@@ -39,9 +43,12 @@ class AddNotesController extends GetxController {
         Get.snackbar(
           "Success",
           data['message'] ?? "Note added successfully",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-        );
+            backgroundColor: Colors.green,
+            snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.check_circle, size: 33,color: Colors.white,),
+            duration: Duration(seconds: 2),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+            colorText: Colors.white  );
         notecontroller.clear(); // Clear the text field
         await Future.delayed(const Duration(seconds: 1)); // (optional) short delay to show the snackbar
         Get.back(); // 👈 go back and return true to previous screen
@@ -50,16 +57,25 @@ class AddNotesController extends GetxController {
         Get.snackbar(
           "Error",
           "Failed to add note",
-          backgroundColor: Colors.red,
-          snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+            duration: Duration(seconds: 2),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+            colorText: Colors.white
+
         );
       }
     } catch (e) {
       Get.snackbar(
         "Error",
         "Something went wrong",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
       );
     } finally {
       isLoading.value = false;

@@ -19,7 +19,13 @@ class TodoStatusController extends GetxController {
       final accessToken = await authController.getToken();
 
       if (accessToken == null || accessToken.isEmpty) {
-        Get.snackbar("Auth Error", "No access token. Please login.");
+        Get.snackbar("Auth Error", "No access token. Please login.",   backgroundColor: Colors.red,
+            snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+            duration: Duration(seconds: 2),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+            colorText: Colors.white
+        );
         return;
       }
 
@@ -43,7 +49,13 @@ class TodoStatusController extends GetxController {
       }
     } catch (e) {
       print('Error fetching todo statuses: $e');
-      Get.snackbar("Error", "Something went wrong: $e");
+      Get.snackbar("Error", "Something went wrong: $e",   backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+      );
     } finally {
       isLoading.value = false;
     }
@@ -56,7 +68,13 @@ class TodoStatusController extends GetxController {
       final accessToken = await authController.getToken();
 
       if (accessToken == null || accessToken.isEmpty) {
-        Get.snackbar("Auth Error", "No access token. Please login.");
+        Get.snackbar("Auth Error", "No access token. Please login.",   backgroundColor: Colors.red,
+            snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+            duration: Duration(seconds: 2),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+            colorText: Colors.white
+        );
         return;
       }
 
@@ -79,14 +97,26 @@ class TodoStatusController extends GetxController {
        // Get.snackbar("Error", "Failed to fetch status counts");
       }
     } catch (e) {
-      Get.snackbar("Exception", "Something went wrong: $e");
+      Get.snackbar("Exception", "Something went wrong: $e",   backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+      );
     }
   }
 
   /// Update todo status by UUID
   Future<void> updateTodoStatus(String uuid) async {
     if (selectedStatus.value == null) {
-      Get.snackbar("Error", "No status selected");
+      Get.snackbar("Error", "No status selected",   backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+      );
       return;
     }
 
@@ -96,7 +126,13 @@ class TodoStatusController extends GetxController {
       final accessToken = await authController.getToken();
 
       if (accessToken == null || accessToken.isEmpty) {
-        Get.snackbar("Auth Error", "No access token. Please login.");
+        Get.snackbar("Auth Error", "No access token. Please login.",   backgroundColor: Colors.red,
+            snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+            duration: Duration(seconds: 2),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+            colorText: Colors.white
+        );
         return;
       }
 
@@ -124,15 +160,23 @@ class TodoStatusController extends GetxController {
           Get.snackbar(
             "Info",
             "Todo status was already in '$newStatus'",
-            backgroundColor: Colors.green,
-            snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.green,
+              snackPosition: SnackPosition.BOTTOM,
+              icon: Icon(Icons.check_circle_outline, size: 33,color: Colors.white,),
+              duration: Duration(seconds: 2),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+              colorText: Colors.white
           );
         } else {
           Get.snackbar(
             "Success",
             "Todo status changed from '$oldStatus' to '$newStatus'",
-            backgroundColor: Colors.green,
-            snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.green,
+              snackPosition: SnackPosition.BOTTOM,
+              icon: Icon(Icons.check_circle_outline, size: 33,color: Colors.white,),
+              duration: Duration(seconds: 2),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+              colorText: Colors.white
           );
         }
       } else {
@@ -142,8 +186,12 @@ class TodoStatusController extends GetxController {
       Get.snackbar(
         "Exception",
         "Something went wrong: $e",
-        backgroundColor: Colors.red,
-        snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
       );
     }
   }

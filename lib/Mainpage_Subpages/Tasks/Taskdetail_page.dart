@@ -60,7 +60,8 @@ class TaskDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_format(taskname), style: const TextStyle(fontWeight: FontWeight.bold)),
+        title:
+        Text(_format(taskname), style: const TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         elevation: 1,
         backgroundColor: Colors.transparent,
@@ -77,6 +78,7 @@ class TaskDetailPage extends StatelessWidget {
           children: [
             _buildSectionContainer(title: "Task Info", children: [_buildTaskInfoSection()]),
             const SizedBox(height: 20),
+
             _buildSectionContainer(
               title: "Description",
               children: [
@@ -136,6 +138,8 @@ class TaskDetailPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildSingleField("Title:", taskname),
+        SizedBox(height: 5,),
         _buildLabelChipRow(),
         const SizedBox(height: 16),
         _buildSingleField("Deadline", deadline),
@@ -376,7 +380,7 @@ class TaskDetailPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
           const SizedBox(height: 12),
           ...children,
         ],

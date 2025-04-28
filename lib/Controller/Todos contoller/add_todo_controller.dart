@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -54,7 +53,14 @@ class AddTodoController extends GetxController {
     if (result != null && result.files.isNotEmpty) {
       selectedAttachmentPaths.value = result.paths.whereType<String>().toList();
     } else {
-      Get.snackbar("No file", "Attachment selection canceled", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar("No file", "Attachment selection canceled",
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+      );
     }
   }
 
@@ -66,17 +72,30 @@ class AddTodoController extends GetxController {
   Future<void> submitTodo() async {
     String? authToken = await getAuthToken();
     if (authToken == null) {
-      Get.snackbar("Error", "User not authenticated.", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar("Error", "User not authenticated.",
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+      );
       return;
     }
 
     if (titleController.text.isEmpty || descriptionController.text.isEmpty || selectedPriority.value.isEmpty || !statusOptions.contains(selectedStatus.value)) {
-      Get.snackbar("Error", "Please fill in all fields.", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar("Error", "Please fill in all fields.",
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+      );
       return;
     }
 
     Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
-
     try {
       var formData = dio.FormData.fromMap({
         'title': titleController.text,
@@ -101,11 +120,17 @@ class AddTodoController extends GetxController {
           },
         ),
       );
-
+print("add notes status code:${response.statusCode}");
       Get.back(); // Close loading dialog
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.snackbar("Success", "Todo submitted successfully", snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar("Success", "Todo submitted successfully",
+            backgroundColor: Colors.green,
+            snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.check_circle, size: 33,color: Colors.white,),
+            duration: Duration(seconds: 2),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+            colorText: Colors.white        );
         titleController.clear();
         descriptionController.clear();
         selectedDateTime.value = null;
@@ -117,11 +142,25 @@ class AddTodoController extends GetxController {
           Get.put(TodoController()).fetchTodos();
         }));
       } else {
-        Get.snackbar("Error", "Failed to submit Todo", snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar("Error", "Failed to submit Todo",
+            backgroundColor: Colors.red,
+            snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+            duration: Duration(seconds: 2),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+            colorText: Colors.white,
+        );
       }
     } catch (e) {
       Get.back();
-      Get.snackbar("Error", "An error occurred: $e", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar("Error", "An error occurred: $e",
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+      );
     }
   }
 }

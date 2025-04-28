@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TodoItemWidget extends StatelessWidget {
@@ -32,38 +33,37 @@ class TodoItemWidget extends StatelessWidget {
       throw 'Could not launch $url';
     }
   }
+  String formatDate(String deadline) {
+    DateTime dateTime = DateFormat("yyyy-MM-dd hh:mm a").parse(deadline);
+    return DateFormat("yyyy-MM-dd").format(dateTime);
+  }
+
+  Color _getStatusColor1(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.yellow.shade100;
+      case 'in_progress':
+        return Colors.lightBlue.shade100; // Red for 'delayed'
+      case 'completed':
+        return Colors.green.shade100; // Green for 'done'
+      case 'cancelled':
+        return Colors.red.shade100;
+      default:
+
+        return Colors.red; // Default color for unknown status
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    // Define pastel color palette
-    final List<Color> pastelColors = [
-      const Color.fromARGB(255, 255, 234, 214),
-      const Color.fromARGB(255, 232, 243, 255),
-      const Color.fromARGB(255, 255, 240, 245),
-      const Color.fromARGB(255, 230, 255, 247),
-      const Color.fromARGB(255, 250, 230, 255),
-      const Color.fromARGB(255, 240, 255, 240),
-    ];
-
-    // Pick two different random colors for gradient
-    final Random random = Random();
-    final Color color1 = pastelColors[random.nextInt(pastelColors.length)];
-    Color color2;
-    do {
-      color2 = pastelColors[random.nextInt(pastelColors.length)];
-    } while (color1 == color2);
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 16),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [color1, color2],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.black12, width: 1),
+          color: Colors.white,
+          borderRadius: BorderRadius.only(topRight: Radius.circular(8),topLeft: Radius.circular(8)),
+          border: Border.all(width: 1,color: Colors.black26),
         ),
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -81,25 +81,36 @@ class TodoItemWidget extends StatelessWidget {
                         color: Colors.black87,
                       ),
                       overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+                      maxLines: 2,
                     ),
                   ),
                   const Spacer(),
                   GestureDetector(
                     onTap: onStatusTap,
                     child: _buildInfoChip1(
-                      status.replaceAll('_', ' ').capitalizeFirst ?? '',
                       null,
+                      status.replaceAll('_', ' ').capitalizeFirst ?? '',
+                      _getStatusColor1(status),
                     ),
                   ),
-                ],
+                    ],
               ),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 14,
                 children: [
-                  _buildInfoChip1("Deadline: $deadline", Icons.calendar_today),
-                  _buildInfoChip1(priority.capitalizeFirst ?? '', Icons.flag),
+                  _buildInfoChip1(
+                    Icons.calendar_today,
+                    "Deadline: ${formatDate(deadline)}",  // Now it shows only the date
+                    Colors.white,
+                    forceWhiteBackground: true,
+                  ),
+                  _buildInfoChip1(
+                    Icons.flag,
+                    priority.capitalizeFirst ?? '',
+                    Colors.white,
+                    forceWhiteBackground: true,
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -158,15 +169,16 @@ class TodoItemWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoChip1(String label, IconData? icon) {
+  Widget _buildInfoChip1(IconData? icon, String label, Color statusColor, {bool forceWhiteBackground = false}) {
     return Chip(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      backgroundColor: Colors.white.withOpacity(0.8),
-      avatar: icon != null ? Icon(icon, size: 13, color: Colors.black87) : null,
+      backgroundColor: forceWhiteBackground ? Colors.white : statusColor, // <-- New logic
+      avatar: icon != null ? Icon(icon, size: 16, color: Colors.black) : null,
       label: Text(
         label,
-        style: const TextStyle(fontSize: 11, color: Colors.black87),
+        style: const TextStyle(fontSize: 12, color: Colors.black),
       ),
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
     );
   }
 }

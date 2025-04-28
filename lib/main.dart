@@ -34,7 +34,12 @@ class MyApp extends StatelessWidget {
           Get.snackbar(
             'Permission Denied',
             'Please grant storage permission to download the file.',
-            snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.red,
+              snackPosition: SnackPosition.BOTTOM,
+              icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+              duration: Duration(seconds: 2),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+              colorText: Colors.white
           );
         }
       }

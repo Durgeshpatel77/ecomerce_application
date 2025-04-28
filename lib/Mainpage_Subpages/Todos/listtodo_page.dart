@@ -32,43 +32,35 @@ class ListTodoPage extends StatelessWidget {
           elevation: 1,
           backgroundColor: Colors.transparent,
           flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xfffceabb), Color(0xfff8b500)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
+            decoration: const BoxDecoration(color: Colors.white),
           ),
         ),
+        backgroundColor: Colors.white,
         body: Column(
           children: [
             Obx(() {
               final status = todoController.statusCount;
               return Container(
-                margin: EdgeInsets.symmetric(vertical: height * 0.015),
+                height: 60,
+                margin: EdgeInsets.symmetric(
+                  vertical: height * 0.015,
+                  horizontal: height * 0.020,
+                ),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFFa1c4fd), Color(0xFFc2e9fb)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    topLeft: Radius.circular(8),
                   ),
+                  border: Border.all(color: Colors.black38, width: 1),
                 ),
                 child: TabBar(
                   isScrollable: false,
                   dividerColor: Colors.transparent,
                   labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.black87,
-                  indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF00c6ff), Color(0xFF0072ff)],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
+                  labelColor: Colors.blue,
+                  unselectedLabelColor: Colors.black,
+                  indicatorColor: Colors.blue,
+                  //indicatorSize: TabBarIndicatorSize.tab,
                   tabs: [
                     _buildTab("Pending", status['pending']),
                     _buildTab("In Progress", status['in_progress']),
@@ -114,7 +106,6 @@ class ListTodoPage extends StatelessWidget {
                                     () => TodoDetailPage(
                                       id: item['id'].toString(),
                                       todo: item,
-
                                     ),
                                   );
                                 },
@@ -142,22 +133,14 @@ class ListTodoPage extends StatelessWidget {
         floatingActionButton: Container(
           width: 60,
           height: 60,
-          decoration:  BoxDecoration(
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.black),
-            gradient: LinearGradient(
-              colors: [Color(0xfffceabb), Color(0xfff8b500)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: FloatingActionButton(    backgroundColor: Colors.transparent,
-            elevation: 0,
+
+          child: FloatingActionButton(
+
+            backgroundColor: Colors.blue,
             onPressed: () {
               Get.to(() => AddtodoPage()); // Navigate with GetX
             },
-            child: const Icon(Icons.add, color: Colors.black,size: 28,),
+            child: const Icon(Icons.add, color: Colors.black, size: 28),
           ),
         ),
       ),
@@ -177,7 +160,7 @@ class ListTodoPage extends StatelessWidget {
                 child: Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
                   maxLines: 1,
@@ -191,7 +174,7 @@ class ListTodoPage extends StatelessWidget {
                 fit: BoxFit.scaleDown,
                 child: Text(
                   "${count ?? 0}",
-                  style: const TextStyle(fontSize: 13),
+                  style: const TextStyle(fontSize: 12),
                   maxLines: 1,
                 ),
               ),

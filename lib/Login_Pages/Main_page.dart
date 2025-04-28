@@ -180,7 +180,13 @@ Widget buildTaskCard(IconData icon, String title, String subtitle, String count,
   return InkWell(
     onTap: () {
       // You can customize this tap behavior later
-      Get.snackbar(title, "Card tapped", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(title, "Card tapped",   backgroundColor: Colors.green,
+          snackPosition: SnackPosition.BOTTOM,
+          //icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          duration: Duration(seconds: 2),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          colorText: Colors.white
+      );
     },
     borderRadius: BorderRadius.circular(16),
     child: Container(

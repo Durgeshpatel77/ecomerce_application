@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/cupertino.dart';
-
 import '../Login_Pages/Auth_screen.dart';
 import '../Login_Pages/Main_page.dart';
 
@@ -16,6 +14,7 @@ class AuthController extends GetxController {
   var userName = ''.obs;
   var userEmail = ''.obs;
 
+  // Method for login API
   void loginApi() async {
     if (codeController.text.length != 6) {
       Get.snackbar(
@@ -25,7 +24,7 @@ class AuthController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         icon: Icon(Icons.error, size: 33, color: Colors.white),
         duration: Duration(seconds: 2),
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20), // Custom padding
         colorText: Colors.white,
       );
       return;
@@ -55,6 +54,8 @@ class AuthController extends GetxController {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', fullToken);
 
+        print("Token saved to SharedPreferences: ${fullToken}");
+
         await fetchUserInfo();
 
         Get.snackbar(
@@ -64,7 +65,7 @@ class AuthController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           icon: Icon(Icons.check_circle, size: 33, color: Colors.white),
           duration: Duration(seconds: 2),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20), // Custom padding
           colorText: Colors.white,
         );
         codeController.clear(); // Clear the field here ✅
@@ -77,7 +78,7 @@ class AuthController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           icon: Icon(Icons.check_circle, size: 33, color: Colors.white),
           duration: Duration(seconds: 2),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20), // Custom padding
           colorText: Colors.white,
         );
       }
@@ -94,6 +95,7 @@ class AuthController extends GetxController {
     }
   }
 
+  // Method to fetch user info from the server
   Future<void> fetchUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -128,6 +130,7 @@ class AuthController extends GetxController {
     }
   }
 
+  // Logout method to clear stored token and user info
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
@@ -149,22 +152,20 @@ class AuthController extends GetxController {
     );
   }
 
+  // Method to get the stored token
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('auth_token');
+    return prefs.getString('auth_token'); // Ensure you are using the correct key
   }
 
-  Future<bool> clearToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.remove('auth_token');
-  }
-
+  // Load user data from shared preferences
   Future<void> loadUserFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     userName.value = prefs.getString('user_name') ?? '';
     userEmail.value = prefs.getString('user_email') ?? '';
   }
 
+  // Called when the controller is closed to dispose of the text controller
   @override
   void onClose() {
     codeController.dispose();

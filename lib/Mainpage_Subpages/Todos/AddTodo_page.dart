@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -21,37 +22,27 @@ class AddtodoPage extends StatelessWidget {
         elevation: 1,
         backgroundColor: Colors.transparent,
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xfffceabb), Color(0xfff8b500)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+          decoration:  BoxDecoration(
+            color: Colors.white
           ),
         ),
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xfffceabb), Color(0xfff8b500)],
-            begin: Alignment.bottomLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        padding: const EdgeInsets.all(16),
+
+        padding: const EdgeInsets.only(top: 15,left: 25,right: 25),
         child: SingleChildScrollView(
           child: Column(
             children: [
               _buildCard(
                 child: Column(
                   children: [
-                    _buildTextField("Title", controller.titleController, maxLines: 1),
+                    _buildTextField1("Title", controller.titleController, maxLines: 1),
                     const SizedBox(height: 12),
                     _buildTextField("Description", controller.descriptionController, maxLines: 5),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               _buildCard(
                 child: Obx(
                       () => DropdownButtonFormField<String>(
@@ -69,7 +60,7 @@ class AddtodoPage extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               _buildCard(
                 child: Obx(
                       () => DropdownButtonFormField<String>(
@@ -88,74 +79,97 @@ class AddtodoPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               _buildDateTimeField(
                 context: context,
                 selectedDateTime: controller.selectedDateTime,
                 onTap: () => controller.selectDateTime(context),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               _buildCard(
                 child: Obx(() => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Attachment", style: TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: controller.pickAttachment,
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            border: Border.all(color: Colors.black),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: const [
-                              Icon(Icons.attach_file, color: Colors.deepPurple),
-                              SizedBox(width: 10),
-                              Text("Select Files", style: TextStyle(color: Colors.black87)),
-                            ],
-                          ),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                 //   const Text("Attachment", style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: controller.pickAttachment,
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(4),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      ...controller.selectedAttachmentPaths.map((path) => Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
                         child: Row(
-                          children: [
-                            const Icon(Icons.insert_drive_file, size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                path.split('/').last,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            ),
+                          children: const [
+                            Icon(Icons.attach_file, color: Colors.deepPurple),
+                            SizedBox(width: 10),
+                            Text("Select Files", style: TextStyle(color: Colors.black87)),
                           ],
                         ),
-                      )),
-                    ],
-                  )),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...controller.selectedAttachmentPaths.map((path) => Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.insert_drive_file, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              path.split('/').last,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                  ],
+                )),
 
-                ),
+              ),
 
               const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: controller.submitTodo,
+                    child: const Text(
+                      "Submit",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
                   ),
-                ),
-                onPressed: controller.submitTodo,
-                child: const Text(
-                  "Submit",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
+                  SizedBox(width: 10,),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed:(){
+                      Get.back();
+                    },
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+
+                ],
               ),
             ],
           ),
@@ -165,14 +179,7 @@ class AddtodoPage extends StatelessWidget {
   }
 
   Widget _buildCard({required Widget child}) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: child,
-      ),
-    );
+    return child;
   }
 
   InputDecoration _inputDecoration(String label) => InputDecoration(
@@ -180,15 +187,28 @@ class AddtodoPage extends StatelessWidget {
     filled: true,
     fillColor: Colors.grey[100],
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+    //  borderRadius: BorderRadius.circular(12),
     ),
   );
+  Widget _buildTextField1(String label, TextEditingController controller, {int maxLines = 1}) {
+    return TextField(
+      maxLength: 15,
+      controller: controller,
+      maxLines: maxLines,
+      decoration: _inputDecoration(label).copyWith(
+        counterText: '', // Hide the counter
+      ),
+    );
+  }
 
   Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1}) {
     return TextField(
+      //maxLength: 15,
       controller: controller,
       maxLines: maxLines,
-      decoration: _inputDecoration(label),
+        decoration: _inputDecoration(label).copyWith(
+      counterText: '', // Hide the counter
+    ),
     );
   }
 
