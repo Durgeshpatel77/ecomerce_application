@@ -28,17 +28,17 @@ class TasklistCustom extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'done':
-        return Colors.green; // Green for 'done'
+        return Colors.green.shade100; // Green for 'done'
       case 'delayed':
-        return Colors.red; // Red for 'delayed'
+        return Colors.red.shade100; // Red for 'delayed'
       case 'in_progress':
-        return Colors.orange;
+        return Colors.yellow.shade100;
         // Orange for 'in progress'
       case 'not_started':
-        return Colors.blue;
+        return Colors.blue.shade100;
       default:
 
-    return Colors.grey; // Default color for unknown status
+    return Colors.grey.shade100; // Default color for unknown status
     }
   }
 

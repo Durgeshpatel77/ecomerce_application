@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../../All_custom_widgets/FormattedDateTime_custom.dart';
 import 'package:path/path.dart' as p;
+
+import '../Todos/detailtodo_page.dart';
 
 class TaskDetailPage extends StatelessWidget {
   final String taskname;
@@ -48,15 +51,8 @@ class TaskDetailPage extends StatelessWidget {
 
   BoxDecoration _commonCardDecoration() {
     return BoxDecoration(
-      gradient: const LinearGradient(
-        colors: [Color(0xfffceabb), Color(0xfff8b500)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: [
-        BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(2, 4)),
-      ],
+      borderRadius: BorderRadius.only(topRight: Radius.circular(15),topLeft: Radius.circular(15)),
+      border: Border.all(color: Colors.black26, width: 1),
     );
   }
 
@@ -70,14 +66,11 @@ class TaskDetailPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xfffceabb), Color(0xfff8b500)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.white
           ),
         ),
       ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -105,7 +98,8 @@ class TaskDetailPage extends StatelessWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.black26, width: 1),
                   ),
                   child: Row(
                     children: [
@@ -210,76 +204,26 @@ class TaskDetailPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: files.map<Widget>((fileUrl) {
         try {
-          final uri = Uri.parse(fileUrl);
-          final filename = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'file';
+          final fileUrlStr = fileUrl.toString();
+          final cleanUrl = fileUrlStr.split('?').first;
+          final filename = p.basename(Uri.parse(cleanUrl).path);
           final extension = filename.contains('.') ? filename.split('.').last.toLowerCase() : 'unknown';
 
-          // Check if the filename is extracted properly
-          if (filename.isEmpty || filename == 'file') {
-            return Text("Invalid file name.", style: TextStyle(color: Colors.red));
+          if (filename.isEmpty || filename == 'Attachment') {
+            return const Text("Invalid file name.", style: TextStyle(color: Colors.red));
           }
 
           return GestureDetector(
-            onTap: () async {
-              if (['jpg', 'jpeg', 'png'].contains(extension)) {
-                Get.dialog(
-                  Dialog(
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      child: Image.network(
-                        fileUrl,
-                        fit: BoxFit.contain,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return SizedBox(
-                            height: 300,
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes!)
-                                    : null,
-                              ),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) => const Center(
-                          child: Icon(Icons.broken_image, size: 60, color: Colors.grey),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              } else if (extension == 'pdf') {
-                Get.dialog(
-                  Dialog(
-                    child: SizedBox(
-                      width: 300,
-                      height: 400,
-                      child: SfPdfViewer.network(fileUrl),
-                    ),
-                  ),
-                );
-              } else {
-                Get.snackbar(
-                  "Preview not supported",
-                  "Cannot preview .$extension files.",
-                  snackPosition: SnackPosition.BOTTOM,
-                );
-              }
+            onTap: () {
+              _showFilePreview(fileUrlStr, extension);
             },
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 6),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
+                border: Border.all(width: 1,color: Colors.black26),
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(15),
               ),
               child: Row(
                 children: [
@@ -302,57 +246,113 @@ class TaskDetailPage extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.download_rounded, color: Colors.black),
-                    onPressed: () => _downloadFile(fileUrl, filename),
+                    onPressed: () async {
+                      await downloadFile(fileUrlStr, filename);
+                    },
                   ),
                 ],
               ),
             ),
           );
         } catch (e) {
-          // If there's an issue parsing the URL or filename, show an error
-          return Text("Error extracting filename.", style: TextStyle(color: Colors.red));
+          return const Text("Error loading file", style: TextStyle(color: Colors.red));
         }
       }).toList(),
     );
   }
 
-
-  void _downloadFile(String url, String filename) async {
-    try {
-      final dir = Directory('/storage/emulated/0/Download');
-      if (!await dir.exists()) await dir.create(recursive: true);
-
-      final filePath = '${dir.path}/$filename';
-
-      // Download the file
-      await Dio().download(url, filePath);
-
-      // Extract the filename from the file path
-      String extractedFilename = p.basename(filePath);
-
-      // Display the extracted filename in the snackbar
-      Get.snackbar(
-        "Download Complete",
-        "File saved as: $extractedFilename",  // Show the extracted filename
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 3),  // Adjust duration for readability
+  void _showFilePreview(String fileUrlStr, String extension) {
+    if (['jpg', 'jpeg', 'png'].contains(extension)) {
+      Get.dialog(
+        Dialog(
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            child: Image.network(
+              fileUrlStr,
+              fit: BoxFit.contain,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return SizedBox(
+                  height: 300,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes!)
+                          : null,
+                    ),
+                  ),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) => const Center(
+                child: Icon(Icons.broken_image, size: 60, color: Colors.grey),
+              ),
+            ),
+          ),
+        ),
       );
-    } catch (e) {
+    } else if (extension == 'pdf') {
+      Get.dialog(
+        Dialog(
+          child: SizedBox(
+            width: 300,
+            height: 400,
+            child: SfPdfViewer.network(fileUrlStr),
+          ),
+        ),
+      );
+    } else {
       Get.snackbar(
-        "Download Failed",
-        "Could not download the file: $e",  // Show error details
+        "Preview not supported",
+        "Cannot preview .$extension files.",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 3),
       );
     }
   }
 
+
+  Future<void> downloadFile(String url, String filename) async {
+    try {
+      final dir = Directory('/storage/emulated/0/Download');
+      if (!await dir.exists()) {await dir.create(recursive: true);
+      }
+
+      final filePath = "${dir.path}/$filename";
+      Dio dio = Dio();
+
+      // Start downloading the file
+      await dio.download(
+        url,
+        filePath,
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            // Uncomment to track download progress
+            // print("Progress: ${(received / total * 100).toStringAsFixed(0)}%");
+          }
+        },
+      );
+
+      // Scan the file so it's visible in the gallery
+      await _scanFile(filePath);
+
+      Get.snackbar('Download Complete', 'Saved to: $filePath');
+    } catch (e) {
+      Get.snackbar('Download Failed', e.toString());
+    }
+  }
+
+  Future<void> _scanFile(String filePath) async {
+    try {
+      const platform = MethodChannel('com.example.app/media');
+      await platform.invokeMethod('scanFile', {'path': filePath});
+    } on PlatformException catch (e) {
+      print("Error scanning file: $e");
+    }
+  }
   Widget _buildSectionContainer({required String title, required List<Widget> children}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
+
       decoration: _commonCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
