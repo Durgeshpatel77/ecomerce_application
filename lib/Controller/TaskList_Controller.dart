@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Auth_Controller.dart';
 
 class TaskController extends GetxController with GetTickerProviderStateMixin {
@@ -26,6 +27,20 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
 
     fetchTasks();
   }
+// Auth_Controller.dart
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('access_token');
+    print('Access token fetched from SharedPreferences: $token');
+    return token;
+  }
+
+  Future<void> saveToken(String token, String tokenType) async {
+    final prefs = await SharedPreferences.getInstance();
+    final fullToken = '$tokenType $token';
+    await prefs.setString('access_token', fullToken);
+    print("Token saved to SharedPreferences: $fullToken");
+  }
 
   Future<void> fetchTasks() async {
     try {
@@ -33,6 +48,7 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
 
       final authController = Get.find<AuthController>();
       final accessToken = await authController.getToken();
+      print("Fetched Access Token in fetchTasks: $accessToken"); // <-- Added print here
 
       if (accessToken == null || accessToken.isEmpty) {
         Get.snackbar("Auth Error", "No access token. Please login.");
@@ -90,7 +106,7 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
         'Authorization': 'Bearer $accessToken',
       },
     );
-
+print("Task list response code:${response.statusCode}");
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       final taskData = jsonResponse['data'];

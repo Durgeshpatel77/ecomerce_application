@@ -60,8 +60,7 @@ class TaskDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-        Text(_format(taskname), style: const TextStyle(fontWeight: FontWeight.bold)),
+        title:Text("Task details"),
         centerTitle: true,
         elevation: 1,
         backgroundColor: Colors.transparent,

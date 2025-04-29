@@ -100,6 +100,7 @@ class TodoDetailPage extends StatelessWidget {
                       runSpacing: 8,
                       children: [
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               "Title: ",
@@ -108,7 +109,18 @@ class TodoDetailPage extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            FormattedDateTimeText(isoString: todo['title']),
+                            Expanded(
+                              child: Text(
+                                todo['title'] ?? '',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ],
                         ),
 
