@@ -137,30 +137,35 @@ class TaskDetailPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSingleField("Title:", taskname),
+        _buildSingleField("Title:",taskname),
         SizedBox(height: 5,),
         _buildLabelChipRow(),
         const SizedBox(height: 16),
-        _buildSingleField("Deadline", deadline),
-        if (repeatUntil != null) _buildSingleField("Repeat Until", repeatUntil!),
-        _buildSingleField("Created By", createdBy),
-        _buildSingleField("Assigned To", assignedTo),
-        _buildSingleField("Department", departmentName),
-        _buildSingleField("Created At", createdAt),
-        _buildSingleField("Updated At", updatedAt),
+        _buildSingleField("Deadline:", deadline),
+        if (repeatUntil != null) _buildSingleField("Repeat Until:",repeatUntil!),
+        _buildSingleField("Created By:",createdBy),
+        _buildSingleField("Assigned To:", assignedTo),
+        _buildSingleField("Department:", departmentName),
+        _buildSingleField("Created At:", createdAt),
+        _buildSingleField("Updated At:", updatedAt),
       ],
     );
   }
 
   Widget _buildSingleField(String label, String value) {
+    String capitalize(String text) {
+      if (text.isEmpty) return text;
+      return text[0].toUpperCase() + text.substring(1);
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Text.rich(
         TextSpan(
           style: const TextStyle(fontSize: 15.5, color: Colors.black),
           children: [
-            TextSpan(text: "$label: ", style: const TextStyle(fontWeight: FontWeight.w600)),
-            TextSpan(text: value),
+            TextSpan(text: " $label ", style: const TextStyle(fontWeight: FontWeight.w600)),
+            TextSpan(text: capitalize(value)),
           ],
         ),
       ),

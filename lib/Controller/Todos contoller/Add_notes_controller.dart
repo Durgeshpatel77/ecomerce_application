@@ -13,8 +13,8 @@ class AddNotesController extends GetxController {
 
     if (content.isEmpty) {
       Get.snackbar(
-        "Error",
-        "Notes content can not be empty",
+          "Error",
+          "Notes content can not be empty",
           backgroundColor: Colors.red,
           snackPosition: SnackPosition.BOTTOM,
           icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
@@ -41,8 +41,8 @@ class AddNotesController extends GetxController {
 
       if (data['success'] == true) {
         Get.snackbar(
-          "Success",
-          data['message'] ?? "Note added successfully",
+            "Success",
+            data['message'] ?? "Note added successfully",
             backgroundColor: Colors.green,
             snackPosition: SnackPosition.BOTTOM,
             icon: Icon(Icons.check_circle, size: 33,color: Colors.white,),
@@ -50,13 +50,13 @@ class AddNotesController extends GetxController {
             padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
             colorText: Colors.white  );
         notecontroller.clear(); // Clear the text field
-        await Future.delayed(const Duration(seconds: 1)); // (optional) short delay to show the snackbar
-        Get.back(); // 👈 go back and return true to previous screen
+        await Future.delayed(const Duration(seconds: 1));
+        Get.back();
       }
       else {
         Get.snackbar(
-          "Error",
-          "Failed to add note",
+            "Error",
+            "Failed to add note",
             backgroundColor: Colors.red,
             snackPosition: SnackPosition.BOTTOM,
             icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
@@ -68,8 +68,8 @@ class AddNotesController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        "Error",
-        "Something went wrong",
+          "Error",
+          "Something went wrong",
           backgroundColor: Colors.red,
           snackPosition: SnackPosition.BOTTOM,
           icon: Icon(Icons.cancel, size: 33,color: Colors.white,),

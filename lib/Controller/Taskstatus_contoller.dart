@@ -39,7 +39,7 @@ class TaskStatusController extends GetxController {
       );
 
       print('Task Status API status code: ${response.statusCode}');
-      print('Task Status API response body: ${response.body}');
+     // print('Task Status API response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -85,7 +85,7 @@ class TaskStatusController extends GetxController {
       );
 
       print("Update Status API Response Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
+     // print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

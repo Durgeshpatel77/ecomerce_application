@@ -111,7 +111,7 @@ class TodoDetailPage extends StatelessWidget {
                             ),
                             Expanded(
                               child: Text(
-                                todo['title'] ?? '',
+                                capitalize(todo['title'] ?? ''),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -567,4 +567,8 @@ Widget _buildTodoLabelChips(Map<String, dynamic> todo) {
       ),
     ],
   );
+}
+String capitalize(String text) {
+  if (text.isEmpty) return text;
+  return text[0].toUpperCase() + text.substring(1);
 }

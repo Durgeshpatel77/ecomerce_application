@@ -65,7 +65,7 @@ class TodoController extends GetxController {
       );
 
       print("Todo List Status Code: ${response.statusCode}");
-      print("Todo List Response Body: ${response.body}");
+     // print("Todo List Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -85,13 +85,13 @@ class TodoController extends GetxController {
       }
 
       print("Status Count Status Code: ${statusResponse.statusCode}");
-      print("Status Count Response Body: ${statusResponse.body}");
+     // print("Status Count Response Body: ${statusResponse.body}");
 
       if (statusResponse.statusCode == 200) {
         final statusData = jsonDecode(statusResponse.body);
         final statusMap = Map<String, dynamic>.from(statusData['data']);
         statusCount.assignAll(statusMap);
-        print("Updated Status Count: $statusCount");
+       // print("Updated Status Count: $statusCount");
       } else {
         Get.snackbar(
           "Error",
@@ -120,77 +120,12 @@ class TodoController extends GetxController {
       isLoading.value = false;
     }
   }
-
-  // Fetch detail of a specific todo by UUID
-  // Future<void> fetchTodoDetail(String id) async {
-  //   isLoading.value = true;
-  //
-  //   try {
-  //     final token = await getToken();
-  //     print("Token: $token");
-  //
-  //     // Check if token is found
-  //     if (token == null) {
-  //       Get.snackbar(
-  //         "Error",
-  //         "No token found. Please login again.",
-  //         backgroundColor: Colors.red,
-  //         snackPosition: SnackPosition.BOTTOM,
-  //         icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-  //         duration: Duration(seconds: 2),
-  //         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-  //         colorText: Colors.white,
-  //       );
-  //       isLoading.value = false;
-  //       return;
-  //     }
-  //
-  //     final response = await http.get(
-  //       Uri.parse('https://inagold.in/api/get_todo_details/$id'),
-  //       headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
-  //     );
-  //
-  //     print("Todo Detail Response Code: ${response.statusCode}");
-  //     print("Todo Detail Response Body: ${response.body}");
-  //
-  //     if (response.statusCode == 200) {
-  //       final data = jsonDecode(response.body);
-  //       todoDetail.value = data['data'] ?? {};
-  //     } else {
-  //       Get.snackbar(
-  //         "Error",
-  //         "Failed to fetch todo details. Status Code: ${response.statusCode}",
-  //         backgroundColor: Colors.red,
-  //         snackPosition: SnackPosition.BOTTOM,
-  //         icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-  //         duration: Duration(seconds: 2),
-  //         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-  //         colorText: Colors.white,
-  //       );
-  //     }
-  //   } catch (e) {
-  //     print("Error fetching todo detail: $e");
-  //     Get.snackbar(
-  //       "Error",
-  //       "Something went wrong while fetching todo details.",
-  //       backgroundColor: Colors.red,
-  //       snackPosition: SnackPosition.BOTTOM,
-  //       icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-  //       duration: Duration(seconds: 2),
-  //       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-  //       colorText: Colors.white,
-  //     );
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
   Future<void> fetchTodoDetail(String id) async {
     isLoading.value = true;
 
     try {
       final token = await getToken();
       print("Token: $token");
-
       // Check if token is found
       if (token == null) {
         Get.snackbar(
@@ -216,7 +151,7 @@ class TodoController extends GetxController {
       );
 
       print("Todo Detail Response Code: ${response.statusCode}");
-      print("Todo Detail Response Body: ${response.body}");
+    //  print("Todo Detail Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -253,7 +188,7 @@ class TodoController extends GetxController {
   // Method to check all stored keys in SharedPreferences
   Future<void> debugSharedPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    print("SharedPreferences Keys: ${prefs.getKeys()}");
-    print("Stored Token: ${prefs.getString('auth_token')}");
+  //  print("SharedPreferences Keys: ${prefs.getKeys()}");
+   // print("Stored Token: ${prefs.getString('auth_token')}");
   }
 }

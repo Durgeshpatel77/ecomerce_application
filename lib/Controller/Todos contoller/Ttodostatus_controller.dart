@@ -37,8 +37,8 @@ class TodoStatusController extends GetxController {
         },
       );
 
-      print('Todo Status API status code: ${response.statusCode}');
-      print('Todo Status API response body: ${response.body}');
+      print('TodoStatus API status code: ${response.statusCode}');
+     // print('Todo Status API response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -86,8 +86,8 @@ class TodoStatusController extends GetxController {
         },
       );
 
-      print("Status Count API Response: ${response.statusCode}");
-      print("Status Count API Response Body: ${response.body}");
+      print("Status Count API Response for Todolist: ${response.statusCode}");
+     // print("Status Count API Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -148,7 +148,7 @@ class TodoStatusController extends GetxController {
         }),
       );
 
-      print("Update Todo Status API Response Code: ${response.statusCode}");
+     // print("Update Todo Status API Response Code: ${response.statusCode}");
       print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
