@@ -103,9 +103,10 @@ class ListTodoPage extends StatelessWidget {
                               return GestureDetector(
                                 onTap: () {
                                   Get.to(
-                                    () => TodoDetailPage(
+                                        () => TodoDetailPage(
                                       id: item['id'].toString(),
                                       todo: item,
+                                      notes: List<Map<String, dynamic>>.from(item['notes']),
                                     ),
                                   );
                                 },
@@ -188,6 +189,7 @@ class ListTodoPage extends StatelessWidget {
   void _showStatusDialog(BuildContext context, Map<String, dynamic> todo) {
     final RxString selectedStatus = RxString(todo['status'] ?? '');
     final currentStatus = todo['status'];
+    final RxBool isLoading = RxBool(false);  // Observable to control loading state
 
     Get.dialog(
       AlertDialog(
@@ -195,54 +197,50 @@ class ListTodoPage extends StatelessWidget {
         content: Obx(() {
           return Column(
             mainAxisSize: MainAxisSize.min,
-            children:
-                statusController.statusList.map((status) {
-                  final isSelected = selectedStatus.value == status['value'];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: GestureDetector(
-                      onTap: () {
-                        selectedStatus.value = status['value'];
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              isSelected
-                                  ? Colors.blue.shade100
-                                  : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color:
-                                isSelected ? Colors.blue : Colors.grey.shade300,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              status['label'],
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color:
-                                    isSelected ? Colors.blue : Colors.black87,
-                              ),
-                            ),
-                            if (isSelected)
-                              const Icon(
-                                Icons.check_circle,
-                                color: Colors.blue,
-                              ),
-                          ],
-                        ),
+            children: statusController.statusList.map((status) {
+              final isSelected = selectedStatus.value == status['value'];
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: GestureDetector(
+                  onTap: () {
+                    selectedStatus.value = status['value'];
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Colors.blue.shade100
+                          : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? Colors.blue : Colors.grey.shade300,
                       ),
                     ),
-                  );
-                }).toList(),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          status['label'],
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: isSelected ? Colors.blue : Colors.black87,
+                          ),
+                        ),
+                        if (isSelected)
+                          const Icon(
+                            Icons.check_circle,
+                            color: Colors.blue,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
           );
         }),
         actions: [
@@ -259,17 +257,33 @@ class ListTodoPage extends StatelessWidget {
             child: InkWell(
               onTap: () async {
                 if (selectedStatus.value != currentStatus) {
+                  // Show loading indicator
+                  isLoading.value = true;
+
+                  // Update status
                   statusController.selectedStatus.value = statusController
                       .statusList
                       .firstWhere(
                         (status) => status['value'] == selectedStatus.value,
-                        orElse: () => {},
-                      );
+                    orElse: () => {},
+                  );
                   await statusController.updateTodoStatus(todo['uuid']);
+
+                  // Hide loading indicator and refresh todo list
+                  isLoading.value = false;
+                  Navigator.pop(context);
+
+                  // Refresh todo list (this might depend on your existing logic)
+                  todoController.fetchTodos();
                 }
-                Navigator.pop(context);
               },
-              child: Center(child: const Text("Save")),
+              child: Center(
+                child: isLoading.value
+                    ? const CircularProgressIndicator(
+                  color: Colors.transparent,
+                )
+                    : const Text("Save"),
+              ),
             ),
           ),
         ],

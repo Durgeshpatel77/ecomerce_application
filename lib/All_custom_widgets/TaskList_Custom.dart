@@ -179,10 +179,15 @@ class TasklistCustom extends StatelessWidget {
 
   void _showStatusDialog(BuildContext context, String taskId) {
     final statusController = Get.find<TaskStatusController>();
+    final taskController = Get.find<TaskController>();
+    final RxBool isSaving = false.obs; // Loading state
+
+    // Fetch status list when dialog opens
     statusController.fetchStatuses();
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -203,8 +208,7 @@ class TasklistCustom extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: statusController.statusList.map((status) {
-                  final isSelected =
-                      statusController.selectedStatus.value?['value'] == status['value'];
+                  final isSelected = statusController.selectedStatus.value?['value'] == status['value'];
                   return InkWell(
                     onTap: () {
                       statusController.selectedStatus.value = status;
@@ -247,29 +251,41 @@ class TasklistCustom extends StatelessWidget {
             ),
             Obx(() {
               return ElevatedButton(
-                onPressed: statusController.selectedStatus.value == null
+                onPressed: (statusController.selectedStatus.value == null || isSaving.value)
                     ? null
                     : () async {
+                  isSaving.value = true;
                   final newStatus = statusController.selectedStatus.value?['value'];
+
                   try {
-                    final taskController = Get.find<TaskController>();
+                    // Get UUID from task details
                     final detail = await taskController.getTaskDetailById(taskId);
                     final correctUuid = detail['task']['uuid'];
 
+                    // Update status via API
                     await statusController.updateTaskStatus(correctUuid);
+
+                    // Optional: update in local list
                     statusController.updateTaskStatusInUI(correctUuid, newStatus);
 
-                    Navigator.pop(context);
+                    // Refresh full task list (if required)
+                    await taskController.fetchTasks();
+
+                    Navigator.pop(context); // Close dialog
                   } catch (e) {
-                    Navigator.pop(context);
-                    Get.snackbar("Error", "Failed to update status: $e",
-                        backgroundColor: Colors.red,
-                        snackPosition: SnackPosition.BOTTOM,
-                        icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
-                        duration: Duration(seconds: 2),
-                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
-                        colorText: Colors.white
+                    Get.snackbar(
+                      "Error",
+                      "Failed to update status: $e",
+                      backgroundColor: Colors.red,
+                      snackPosition: SnackPosition.BOTTOM,
+                      icon: const Icon(Icons.cancel, size: 33, color: Colors.white),
+                      duration: const Duration(seconds: 2),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                      colorText: Colors.white,
                     );
+                    Navigator.pop(context);
+                  } finally {
+                    isSaving.value = false;
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -277,7 +293,16 @@ class TasklistCustom extends StatelessWidget {
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text("Save"),
+                child: isSaving.value
+                    ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
+                  ),
+                )
+                    : const Text("Save"),
               );
             }),
           ],

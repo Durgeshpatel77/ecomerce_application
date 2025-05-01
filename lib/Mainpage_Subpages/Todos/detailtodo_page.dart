@@ -7,18 +7,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../All_custom_widgets/FormattedDateTime_custom.dart';
+import '../../Controller/Todos contoller/Add_notes_controller.dart';
+import '../../Controller/Todos contoller/Delete_notes.dart';
 import '../../Controller/Todos contoller/ttodo_controller.dart';
 import 'Add_notes.dart';
 
 class TodoDetailPage extends StatelessWidget {
   final String id;
   final Map<String, dynamic> todo;
+  final List<Map<String, dynamic>> notes;
 
-  const TodoDetailPage({Key? key, required this.id, required this.todo}) : super(key: key);
+  const TodoDetailPage({Key? key, required this.id, required this.todo, required this.notes}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final TodoController controller = Get.find<TodoController>();
+    final NoteController noteController = Get.put(NoteController());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.fetchTodoDetail(id);
@@ -27,6 +31,12 @@ class TodoDetailPage extends StatelessWidget {
     String _format(String? value) {
       if (value == null) return '';
       return value.replaceAll('_', ' ').capitalizeFirst ?? '';
+    }
+    Future<void> _deleteNote(int noteId) async {
+      final prefs = await SharedPreferences.getInstance();
+      final authToken = prefs.getString('access_token') ?? '';
+
+      await noteController.deleteNoteById(noteId, authToken);
     }
 
     return Scaffold(
@@ -428,6 +438,32 @@ class TodoDetailPage extends StatelessWidget {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
+                                        Spacer(),
+                                        IconButton(
+                                          icon: Icon(Icons.delete),
+                                          onPressed: () async {
+                                            final prefs = await SharedPreferences.getInstance();
+                                            final authToken = prefs.getString('access_token') ?? '';
+
+                                            // Call the delete method from NoteController
+                                            await noteController.deleteNoteById(note['id'], authToken);
+
+                                            // If deletion was successful, remove the note from the UI
+                                            if (noteController.isDeleting.value == false) {
+                                              // Show success notification
+                                              Get.snackbar("Success", "Note deleted successfully", backgroundColor: Colors.green.shade400);
+
+                                              // If you're on the detail page, clear the note data from the UI
+                                              Get.back();  // This goes back to the previous page (e.g., notes list page)
+
+                                              // Optionally, navigate to the previous screen or home screen if you want to go back completely
+                                              // Get.offAll(() => HomeScreen());  // If you want to navigate to the home screen after delete
+                                            } else {
+                                              // If deletion fails, show an error snackbar
+                                              Get.snackbar("Error", "Failed to delete note", backgroundColor: Colors.red.shade400);
+                                            }
+                                          },
+                                        )
                                       ],
                                     ),
                                     const SizedBox(height: 8),

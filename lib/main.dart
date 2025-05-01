@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart'; // 👈 import this
 import 'Controller/Auth_Controller.dart';
 import 'Controller/TaskList_Controller.dart';
 import 'Controller/Taskstatus_contoller.dart';
+import 'Controller/Todos contoller/Add_notes_controller.dart';
 import 'Controller/http_overrides.dart';
 import 'Splash_Screen.dart';
 
@@ -16,6 +17,8 @@ void main() {
 //  Get.put(TodoStatusController());  // Add this line to register the controller
   Get.put(TaskController());
   Get.put(TaskStatusController());
+  Get.put(AddNotesController());
+
 
   runApp(const MyApp());
 }

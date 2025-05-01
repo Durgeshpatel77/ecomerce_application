@@ -93,6 +93,7 @@ class TodoItemWidget extends StatelessWidget {
                       _getStatusColor1(status),
                     ),
                   ),
+                  SizedBox(width: 5,),
                     ],
               ),
               const SizedBox(height: 6),
