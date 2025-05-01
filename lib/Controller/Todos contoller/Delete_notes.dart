@@ -6,17 +6,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 class NoteController extends GetxController {
   var isDeleting = false.obs;
 
-  // Method to delete note by ID
-  Future<void> deleteNoteById(int noteId, String authToken) async {
+  // Now returns bool to indicate success/failure
+  Future<bool> deleteNoteById(int noteId, String authToken) async {
     final url = Uri.parse("https://inagold.in/api/todos/delete_note/$noteId");
     isDeleting.value = true;
 
     try {
-      // Fetch the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('auth_token') ?? '';
 
-      // Check if the token is empty, if so, prompt the user to log in
       if (authToken.isEmpty) {
         Get.snackbar(
           "Error",
@@ -24,11 +22,9 @@ class NoteController extends GetxController {
           backgroundColor: Colors.red.shade400,
           snackPosition: SnackPosition.BOTTOM,
         );
-        return;
+        return false;
       }
-      print('Token: $authToken'); // Debug
 
-      // Perform the DELETE request
       final response = await http.delete(
         url,
         headers: {
@@ -36,15 +32,18 @@ class NoteController extends GetxController {
           'Authorization': 'Bearer $authToken',
         },
       );
+
       print("Delete notes status code ${response.statusCode}");
 
       if (response.statusCode == 200) {
-        Get.snackbar("Success", "Note deleted successfully");
+        return true;
       } else {
-        Get.snackbar("Error", "Failed to delete note (${response.statusCode})");
+        print("Failed to delete note: ${response.body}");
+        return false;
       }
     } catch (e) {
-      Get.snackbar("Error", "Exception occurred: $e");
+      print("Exception during delete: $e");
+      return false;
     } finally {
       isDeleting.value = false;
     }

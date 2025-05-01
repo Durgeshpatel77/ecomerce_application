@@ -441,27 +441,52 @@ class TodoDetailPage extends StatelessWidget {
                                         Spacer(),
                                         IconButton(
                                           icon: Icon(Icons.delete),
-                                          onPressed: () async {
-                                            final prefs = await SharedPreferences.getInstance();
-                                            final authToken = prefs.getString('access_token') ?? '';
+                                          onPressed: () {
+                                            Get.defaultDialog(
+                                              backgroundColor: Colors.white,
 
-                                            // Call the delete method from NoteController
-                                            await noteController.deleteNoteById(note['id'], authToken);
+                                              title: "Delete Note",
+                                              middleText: "Are you sure you want to delete this note?",
+                                              textCancel: "Cancel",
+                                              textConfirm: "Delete",
 
-                                            // If deletion was successful, remove the note from the UI
-                                            if (noteController.isDeleting.value == false) {
-                                              // Show success notification
-                                              Get.snackbar("Success", "Note deleted successfully", backgroundColor: Colors.green.shade400);
+                                              confirmTextColor: Colors.white,
+                                              buttonColor: Colors.red,
+                                              onConfirm: () async {
+                                                Get.back(); // Close dialog
 
-                                              // If you're on the detail page, clear the note data from the UI
-                                              Get.back();  // This goes back to the previous page (e.g., notes list page)
+                                                Get.dialog(
+                                                  Center(child: CircularProgressIndicator()),
+                                                  barrierDismissible: false,
+                                                );
 
-                                              // Optionally, navigate to the previous screen or home screen if you want to go back completely
-                                              // Get.offAll(() => HomeScreen());  // If you want to navigate to the home screen after delete
-                                            } else {
-                                              // If deletion fails, show an error snackbar
-                                              Get.snackbar("Error", "Failed to delete note", backgroundColor: Colors.red.shade400);
-                                            }
+                                                final prefs = await SharedPreferences.getInstance();
+                                                final authToken = prefs.getString('access_token') ?? '';
+
+                                                final success = await noteController.deleteNoteById(note['id'], authToken);
+
+                                                Get.back(); // Close loading
+
+                                                if (success) {
+                                                  // Remove note from todoDetail
+                                                  final notes = controller.todoDetail['notes'];
+                                                  if (notes is List) {
+                                                    notes.removeWhere((n) => n['id'] == note['id']);
+                                                    controller.todoDetail['notes'] = notes;
+                                                    controller.todoDetail.refresh(); // Notify UI
+                                                  }
+                                                } else {
+                                                  Get.defaultDialog(
+                                                    title: "Error",
+                                                    middleText: "Failed to delete the note.",
+                                                    textConfirm: "OK",
+                                                    confirmTextColor: Colors.white,
+                                                    buttonColor: Colors.red,
+                                                    onConfirm: () => Get.back(),
+                                                  );
+                                                }
+                                              },
+                                            );
                                           },
                                         )
                                       ],
