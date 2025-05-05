@@ -34,9 +34,6 @@ class TodoController extends GetxController {
 
     try {
       final token = await getToken();
-      print("Token of todos: $token"); // Debugging line
-
-      // Check if token is found
       if (token == null) {
         Get.snackbar(
           "Error",
@@ -52,25 +49,27 @@ class TodoController extends GetxController {
         return;
       }
 
-      // Fetch todo list
       final response = await http.get(
         Uri.parse('https://inagold.in/api/get_todo_list?page=1'),
         headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
       );
 
-      // Fetch status count
       final statusResponse = await http.get(
         Uri.parse('https://inagold.in/api/count_todos'),
         headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
       );
 
       print("Todo List Status Code: ${response.statusCode}");
-     // print("Todo List Response Body: ${response.body}");
-
+      // Handle response
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final todos = data['data']['data'];
         todoList.assignAll(todos);
+      } else if (response.statusCode == 503) {
+        // Retry logic if server is unavailable
+        Get.snackbar("Server Error", "Server is unavailable. Retrying...", backgroundColor: Colors.orange, snackPosition: SnackPosition.BOTTOM);
+        await Future.delayed(Duration(seconds: 3)); // Retry after delay
+        await fetchTodos(); // Retry fetching todos
       } else {
         Get.snackbar(
           "Error",
@@ -85,13 +84,11 @@ class TodoController extends GetxController {
       }
 
       print("Status Count Status Code: ${statusResponse.statusCode}");
-     // print("Status Count Response Body: ${statusResponse.body}");
-
+      // Handle status response
       if (statusResponse.statusCode == 200) {
         final statusData = jsonDecode(statusResponse.body);
         final statusMap = Map<String, dynamic>.from(statusData['data']);
         statusCount.assignAll(statusMap);
-       // print("Updated Status Count: $statusCount");
       } else {
         Get.snackbar(
           "Error",
@@ -120,6 +117,7 @@ class TodoController extends GetxController {
       isLoading.value = false;
     }
   }
+
   Future<void> fetchTodoDetail(String id) async {
     isLoading.value = true;
 
@@ -151,8 +149,6 @@ class TodoController extends GetxController {
       );
 
       print("Todo Detail Response Code: ${response.statusCode}");
-    //  print("Todo Detail Response Body: ${response.body}");
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         todoDetail.value = data['data'] ?? {};
@@ -181,14 +177,15 @@ class TodoController extends GetxController {
         colorText: Colors.white,
       );
     } finally {
-         isLoading.value = false;
-        }
-
+      isLoading.value = false;
+    }
   }
+
   // Method to check all stored keys in SharedPreferences
   Future<void> debugSharedPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-  //  print("SharedPreferences Keys: ${prefs.getKeys()}");
-   // print("Stored Token: ${prefs.getString('auth_token')}");
+    // Debugging to print stored keys
+    print("SharedPreferences Keys: ${prefs.getKeys()}");
+    print("Stored Token: ${prefs.getString('auth_token')}");
   }
 }
