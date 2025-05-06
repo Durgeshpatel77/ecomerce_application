@@ -107,6 +107,7 @@ class ListTodoPage extends StatelessWidget {
                                       id: item['id'].toString(),
                                       todo: item,
                                       notes: List<Map<String, dynamic>>.from(item['notes']),
+                                      uuid: item['uuid'], // ✅ use the real uuid here
                                     ),
                                   );
                                 },

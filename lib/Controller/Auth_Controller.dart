@@ -24,7 +24,7 @@ class AuthController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         icon: Icon(Icons.error, size: 33, color: Colors.white),
         duration: Duration(seconds: 2),
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20), // Custom padding
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         colorText: Colors.white,
       );
       return;
@@ -47,6 +47,7 @@ class AuthController extends GetxController {
         final token = data['access_token'];
         final tokenType = data['token_type'];
         final fullToken = "$tokenType $token";
+
         print("Access Token: $token");
         print("Token Type: $tokenType");
         print("Full Token: $fullToken");
@@ -54,7 +55,7 @@ class AuthController extends GetxController {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', fullToken);
 
-        print("Token saved to SharedPreferences: ${fullToken}");
+        print("Token saved to SharedPreferences: $fullToken");
 
         await fetchUserInfo();
 
@@ -65,20 +66,22 @@ class AuthController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           icon: Icon(Icons.check_circle, size: 33, color: Colors.white),
           duration: Duration(seconds: 2),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20), // Custom padding
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
           colorText: Colors.white,
         );
-        codeController.clear(); // Clear the field here ✅
+
+        codeController.clear(); // ✅ Clear only on success
 
         Get.off(() => HomeScreen());
       } else {
         Get.snackbar(
-          "Error", "Login failed. Enter a valid code.",
-          backgroundColor: Colors.red.shade50,
+          "Error",
+          "Login failed. Enter a valid code.",
+          backgroundColor: Colors.red.shade400,
           snackPosition: SnackPosition.BOTTOM,
-          icon: Icon(Icons.check_circle, size: 33, color: Colors.white),
+          icon: Icon(Icons.error, size: 33, color: Colors.white),
           duration: Duration(seconds: 2),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20), // Custom padding
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
           colorText: Colors.white,
         );
       }
@@ -155,7 +158,7 @@ class AuthController extends GetxController {
   // Method to get the stored token
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('auth_token'); // Ensure you are using the correct key
+    return prefs.getString('auth_token');
   }
 
   // Load user data from shared preferences

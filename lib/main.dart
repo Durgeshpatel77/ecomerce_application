@@ -17,7 +17,6 @@ void main() {
 //  Get.put(TodoStatusController());  // Add this line to register the controller
   Get.put(TaskController());
   Get.put(TaskStatusController());
-  Get.put(AddNotesController());
 
 
   runApp(const MyApp());

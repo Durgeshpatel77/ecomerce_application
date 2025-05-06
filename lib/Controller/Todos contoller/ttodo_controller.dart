@@ -3,7 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Auth_Controller.dart';
 
 class TodoController extends GetxController {
   var todoList = [].obs;
@@ -17,102 +18,54 @@ class TodoController extends GetxController {
     'total': 0,
   }.obs;
 
-  // Detail for a single todo
   var todoDetail = <String, dynamic>{}.obs;
 
-  // Helper method to retrieve the token from SharedPreferences
-  Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('auth_token'); // Ensure the key matches
-    print("Token retrieved from SharedPreferences: $token"); // Debugging line
-    return token;
-  }
+  final authController = Get.find<AuthController>(); // Get AuthController instance
 
-  // Fetch todo list and status counts
   Future<void> fetchTodos() async {
     isLoading.value = true;
 
     try {
-      final token = await getToken();
-      if (token == null) {
-        Get.snackbar(
-          "Error",
-          "No token found. Please login again.",
-          backgroundColor: Colors.red,
-          snackPosition: SnackPosition.BOTTOM,
-          icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-          duration: Duration(seconds: 2),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-          colorText: Colors.white,
-        );
-        isLoading.value = false;
+      final token = await authController.getToken(); // ✅ Fetch token from SharedPreferences
+      if (token == null || token.isEmpty) {
+        _showTokenError();
         return;
       }
 
       final response = await http.get(
         Uri.parse('https://inagold.in/api/get_todo_list?page=1'),
-        headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+        headers: {
+          'Authorization': token,
+          'Accept': 'application/json',
+        },
       );
 
       final statusResponse = await http.get(
         Uri.parse('https://inagold.in/api/count_todos'),
-        headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+        headers: {
+          'Authorization': token,
+          'Accept': 'application/json',
+        },
       );
 
-      print("Todo List Status Code: ${response.statusCode}");
-      // Handle response
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final todos = data['data']['data'];
         todoList.assignAll(todos);
-      } else if (response.statusCode == 503) {
-        // Retry logic if server is unavailable
-        Get.snackbar("Server Error", "Server is unavailable. Retrying...", backgroundColor: Colors.orange, snackPosition: SnackPosition.BOTTOM);
-        await Future.delayed(Duration(seconds: 3)); // Retry after delay
-        await fetchTodos(); // Retry fetching todos
       } else {
-        Get.snackbar(
-          "Error",
-          "Failed to fetch todos. Status Code: ${response.statusCode}",
-          backgroundColor: Colors.red,
-          snackPosition: SnackPosition.BOTTOM,
-          icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-          duration: Duration(seconds: 2),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-          colorText: Colors.white,
-        );
+        _showError("Failed to fetch todos. Status Code: ${response.statusCode}");
       }
 
-      print("Status Count Status Code: ${statusResponse.statusCode}");
-      // Handle status response
       if (statusResponse.statusCode == 200) {
         final statusData = jsonDecode(statusResponse.body);
         final statusMap = Map<String, dynamic>.from(statusData['data']);
         statusCount.assignAll(statusMap);
       } else {
-        Get.snackbar(
-          "Error",
-          "Failed to fetch status counts. Status Code: ${statusResponse.statusCode}",
-          backgroundColor: Colors.red,
-          snackPosition: SnackPosition.BOTTOM,
-          icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-          duration: Duration(seconds: 2),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-          colorText: Colors.white,
-        );
+        _showError("Failed to fetch status counts. Status Code: ${statusResponse.statusCode}");
       }
     } catch (e) {
+      _showError("Something went wrong while fetching todos.");
       print("Error fetching todos: $e");
-      Get.snackbar(
-        "Error",
-        "Something went wrong while fetching todos.",
-        backgroundColor: Colors.red,
-        snackPosition: SnackPosition.BOTTOM,
-        icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-        duration: Duration(seconds: 2),
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-        colorText: Colors.white,
-      );
     } finally {
       isLoading.value = false;
     }
@@ -122,70 +75,49 @@ class TodoController extends GetxController {
     isLoading.value = true;
 
     try {
-      final token = await getToken();
-      print("Token: $token");
-      // Check if token is found
-      if (token == null) {
-        Get.snackbar(
-          "Error",
-          "No token found. Please login again.",
-          backgroundColor: Colors.red,
-          snackPosition: SnackPosition.BOTTOM,
-          icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-          duration: Duration(seconds: 2),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-          colorText: Colors.white,
-        );
-        isLoading.value = false;
+      final token = await authController.getToken(); // ✅ Fetch token again
+      if (token == null || token.isEmpty) {
+        _showTokenError();
         return;
       }
 
       final response = await http.get(
         Uri.parse('https://inagold.in/api/get_todo_details/$id'),
         headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json'
+          'Authorization': token,
+          'Accept': 'application/json',
         },
       );
 
-      print("Todo Detail Response Code: ${response.statusCode}");
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         todoDetail.value = data['data'] ?? {};
       } else {
-        Get.snackbar(
-          "Error",
-          "Failed to fetch todo details. Status Code: ${response.statusCode}",
-          backgroundColor: Colors.red,
-          snackPosition: SnackPosition.BOTTOM,
-          icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-          duration: Duration(seconds: 2),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-          colorText: Colors.white,
-        );
+        _showError("Failed to fetch todo details. Status Code: ${response.statusCode}");
       }
     } catch (e) {
+      _showError("Something went wrong while fetching todo details.");
       print("Error fetching todo detail: $e");
-      Get.snackbar(
-        "Error",
-        "Something went wrong while fetching todo details.",
-        backgroundColor: Colors.red,
-        snackPosition: SnackPosition.BOTTOM,
-        icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-        duration: Duration(seconds: 2),
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-        colorText: Colors.white,
-      );
     } finally {
       isLoading.value = false;
     }
   }
 
-  // Method to check all stored keys in SharedPreferences
-  Future<void> debugSharedPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    // Debugging to print stored keys
-    print("SharedPreferences Keys: ${prefs.getKeys()}");
-    print("Stored Token: ${prefs.getString('auth_token')}");
+  void _showError(String message) {
+    Get.snackbar(
+      "Error",
+      message,
+      backgroundColor: Colors.red,
+      snackPosition: SnackPosition.BOTTOM,
+      icon: Icon(Icons.cancel, size: 33, color: Colors.white),
+      duration: Duration(seconds: 2),
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+      colorText: Colors.white,
+    );
+  }
+
+  void _showTokenError() {
+    _showError("No token found. Please login again.");
+    isLoading.value = false;
   }
 }
