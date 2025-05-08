@@ -53,7 +53,7 @@ class TodoController extends GetxController {
         final todos = data['data']['data'];
         todoList.assignAll(todos);
       } else {
-        _showError("Failed to fetch todos. Status Code: ${response.statusCode}");
+      //  _showError("Failed to fetch todos. Status Code: ${response.statusCode}");
       }
 
       if (statusResponse.statusCode == 200) {
@@ -61,7 +61,7 @@ class TodoController extends GetxController {
         final statusMap = Map<String, dynamic>.from(statusData['data']);
         statusCount.assignAll(statusMap);
       } else {
-        _showError("Failed to fetch status counts. Status Code: ${statusResponse.statusCode}");
+      //  _showError("Failed to fetch status counts. Status Code: ${statusResponse.statusCode}");
       }
     } catch (e) {
       _showError("Something went wrong while fetching todos.");
@@ -71,14 +71,14 @@ class TodoController extends GetxController {
     }
   }
 
-  Future<void> fetchTodoDetail(String id) async {
+  Future<Map<String, dynamic>> fetchTodoDetail(String id) async {
     isLoading.value = true;
 
     try {
       final token = await authController.getToken(); // ✅ Fetch token again
       if (token == null || token.isEmpty) {
         _showTokenError();
-        return;
+        return {};
       }
 
       final response = await http.get(
@@ -92,12 +92,15 @@ class TodoController extends GetxController {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         todoDetail.value = data['data'] ?? {};
+        return todoDetail.value; // Return the data if needed elsewhere
       } else {
         _showError("Failed to fetch todo details. Status Code: ${response.statusCode}");
+        return {}; // Empty map in case of failure
       }
     } catch (e) {
       _showError("Something went wrong while fetching todo details.");
       print("Error fetching todo detail: $e");
+      return {}; // Empty map in case of error
     } finally {
       isLoading.value = false;
     }

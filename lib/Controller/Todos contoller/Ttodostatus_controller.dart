@@ -37,20 +37,20 @@ class TodoStatusController extends GetxController {
         },
       );
 
-      print('TodoStatus API status code: ${response.statusCode}');
+     // print('TodoStatus API status code: ${response.statusCode}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         statusList.value = List<Map<String, dynamic>>.from(data['data']);
         fetchStatusCounts();  // Fetch counts after statuses
       } else {
-        Get.snackbar("Error", "Failed to load todo statuses. Status Code: ${response.statusCode}",
-            backgroundColor: Colors.red,
-            snackPosition: SnackPosition.BOTTOM,
-            icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-            duration: Duration(seconds: 2),
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-            colorText: Colors.white
-        );
+        // Get.snackbar("Error", "Failed to load todo statuses. Status Code: ${response.statusCode}",
+        //     backgroundColor: Colors.red,
+        //     snackPosition: SnackPosition.BOTTOM,
+        //     icon: Icon(Icons.cancel, size: 33, color: Colors.white),
+        //     duration: Duration(seconds: 2),
+        //     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        //     colorText: Colors.white
+        // );
       }
     } catch (e) {
       print('Error fetching todo statuses: $e');
@@ -98,14 +98,14 @@ class TodoStatusController extends GetxController {
         final counts = Map<String, dynamic>.from(data['data']);
         statusCounts.value = counts;
       } else {
-        Get.snackbar("Error", "Failed to fetch status counts. Status Code: ${response.statusCode}",
-            backgroundColor: Colors.red,
-            snackPosition: SnackPosition.BOTTOM,
-            icon: Icon(Icons.cancel, size: 33, color: Colors.white),
-            duration: Duration(seconds: 2),
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-            colorText: Colors.white
-        );
+        // Get.snackbar("Error", "Failed to fetch status counts. Status Code: ${response.statusCode}",
+        //     backgroundColor: Colors.red,
+        //     snackPosition: SnackPosition.BOTTOM,
+        //     icon: Icon(Icons.cancel, size: 33, color: Colors.white),
+        //     duration: Duration(seconds: 2),
+        //     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        //     colorText: Colors.white
+        // );
       }
     } catch (e) {
       Get.snackbar("Exception", "Something went wrong: $e",

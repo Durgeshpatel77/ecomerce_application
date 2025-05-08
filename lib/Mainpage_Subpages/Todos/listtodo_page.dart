@@ -11,7 +11,7 @@ import 'detailtodo_page.dart';
 class ListTodoPage extends StatelessWidget {
   ListTodoPage({super.key});
   final TodoController todoController = Get.put(TodoController());
-  final TodoStatusController statusController = Get.put(TodoStatusController());
+  final statusController = Get.find<TodoStatusController>(); // ✔️ used where needed
 
   @override
   Widget build(BuildContext context) {
@@ -101,13 +101,25 @@ class ListTodoPage extends StatelessWidget {
                               final item = filtered[index];
 
                               return GestureDetector(
-                                onTap: () {
+                                onTap: () async {
+                                  // Show circular loading indicator
+                                  Get.dialog(
+                                    const Center(child: CircularProgressIndicator()),
+                                    barrierDismissible: false,
+                                  );
+
+                                  // Simulate loading or data preparation (optional)
+                                  await Future.delayed(const Duration(milliseconds: 500));
+
+                                  // Hide loading dialog
+                                  Get.back();
+
+                                  // Navigate to detail page
                                   Get.to(
                                         () => TodoDetailPage(
                                       id: item['id'].toString(),
                                       todo: item,
                                       notes: List<Map<String, dynamic>>.from(item['notes']),
-                                      uuid: item['uuid'], // ✅ use the real uuid here
                                     ),
                                   );
                                 },

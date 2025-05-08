@@ -13,16 +13,15 @@ import '../../Controller/Todos contoller/ttodo_controller.dart';
 import 'Add_notes.dart';
 
 class TodoDetailPage extends StatelessWidget {
-  final String uuid;
   final String id;
   final Map<String, dynamic> todo;
   final List<Map<String, dynamic>> notes;
 
-  const TodoDetailPage({Key? key, required this.id, required this.todo, required this.notes, required this.uuid}) : super(key: key);
+  const TodoDetailPage({Key? key, required this.id, required this.todo, required this.notes}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final TodoController controller = Get.put(TodoController());
+    final TodoController controller = Get.find<TodoController>();
     final NoteController noteController = Get.put(NoteController());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -54,10 +53,23 @@ class TodoDetailPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
-        onPressed: () {
-          Get.to(() => AddNotePage(uuid: uuid)); // Pass uuid to AddNotePage
-        },
-        child: const Icon(Icons.add, size: 32),
+          onPressed: () async {
+            final prefs = await SharedPreferences.getInstance();
+            final authToken = prefs.getString('access_token') ?? '';
+            final uuid = todo['uuid']; // todo is accessible because it's a class member
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddNotes(
+                  uuid: uuid,
+                  authToken: authToken,
+                ),
+              ),
+            );
+
+          },
+        child: const Icon(Icons.add,size: 32,),
       ),
       backgroundColor: Colors.white,
       body: Obx(() {
