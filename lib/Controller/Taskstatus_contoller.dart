@@ -56,7 +56,7 @@ class TaskStatusController extends GetxController {
   }
 
   /// Update task status by UUID
-  Future<void> updateTaskStatus(String uuid) async {
+  Future<void> updateTaskStatus(String uuid, String newValue) async {
     if (selectedStatus.value == null) {
       Get.snackbar("Error", "No status selected");
       return;

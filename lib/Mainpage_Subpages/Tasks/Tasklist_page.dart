@@ -49,7 +49,6 @@ class TasklistPage extends StatelessWidget {
               ),
             );
           }
-
           // Your existing Column with TabBar and TabBarView
           return Column(
             children: [
@@ -98,7 +97,7 @@ class TasklistPage extends StatelessWidget {
                               duration: const Duration(milliseconds: 250),
                               padding: EdgeInsets.symmetric(
                                 horizontal: width * 0.02,
-                                vertical: height * 0.005,
+                               vertical: height * 0.005,
                               ),
                               child: FittedBox(
                                 fit: BoxFit.contain,
@@ -164,16 +163,11 @@ class TasklistPage extends StatelessWidget {
                                           status:
                                               task['status']?.toString() ??
                                               'Unknown',
-                                          description:
-                                              task['work_detail']?.toString() ??
-                                              'No Description',
                                           deadline:
                                               task['deadline']?.toString() ??
                                               '',
-                                          priority:
-                                              task['priority']?.toString() ??
-                                              '',
                                           taskId: task['id']?.toString() ?? '',
+                                          assignedTo: task['assign_to']?['name']?.toString() ?? '', // <-- update this line
                                         ),
                                       );
                                     },
