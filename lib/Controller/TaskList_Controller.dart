@@ -24,10 +24,15 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
         selectedTabIndex.value = tabController.index;
       }
     });
-
-    fetchTasks();
   }
-// Auth_Controller.dart
+
+  @override
+  void onReady() {
+    super.onReady();
+    fetchTasks(); // Fetch tasks when screen becomes visible
+  }
+
+  // Auth_Controller.dart
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');
@@ -48,7 +53,7 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
 
       final authController = Get.find<AuthController>();
       final accessToken = await authController.getToken();
-      print("Fetched Access Token in fetchTasks: $accessToken"); // <-- Added print here
+      print("Fetched Access Token in fetchTasks: $accessToken");
 
       if (accessToken == null || accessToken.isEmpty) {
         Get.snackbar("Auth Error", "No access token. Please login.");
@@ -70,22 +75,19 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
         Get.snackbar("Error", "Failed to fetch tasks: ${response.statusCode}",
             backgroundColor: Colors.red,
             snackPosition: SnackPosition.BOTTOM,
-            icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+            icon: Icon(Icons.cancel, size: 33, color: Colors.white),
             duration: Duration(seconds: 2),
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
-            colorText: Colors.white
-        );
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+            colorText: Colors.white);
       }
     } catch (e) {
       Get.snackbar("Exception", e.toString(),
           backgroundColor: Colors.red,
           snackPosition: SnackPosition.BOTTOM,
-          icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
+          icon: Icon(Icons.cancel, size: 33, color: Colors.white),
           duration: Duration(seconds: 2),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
-          colorText: Colors.white
-
-      );
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+          colorText: Colors.white);
     } finally {
       isLoading(false);
     }
@@ -106,7 +108,7 @@ class TaskController extends GetxController with GetTickerProviderStateMixin {
         'Authorization': 'Bearer $accessToken',
       },
     );
-print("Task list response code:${response.statusCode}");
+    print("Task list response code:${response.statusCode}");
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       final taskData = jsonResponse['data'];
@@ -126,6 +128,7 @@ print("Task list response code:${response.statusCode}");
       throw Exception('Failed to load task details');
     }
   }
+
   @override
   void onClose() {
     tabController.dispose();

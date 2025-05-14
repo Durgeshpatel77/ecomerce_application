@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -27,46 +26,31 @@ class TodoItemWidget extends StatelessWidget {
   }) : super(key: key);
 
   void _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       throw 'Could not launch $url';
     }
   }
+
   String formatDate(String deadline) {
     DateTime dateTime = DateFormat("yyyy-MM-dd hh:mm a").parse(deadline);
-    return DateFormat("yyyy-MM-dd").format(dateTime);
+    return DateFormat("dd/MM/yyyy").format(dateTime);
   }
-
-  Color _getStatusColor1(String status) {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return Colors.yellow.shade100;
-      case 'in_progress':
-        return Colors.lightBlue.shade100; // Red for 'delayed'
-      case 'completed':
-        return Colors.green.shade100; // Green for 'done'
-      case 'cancelled':
-        return Colors.red.shade100;
-      default:
-
-        return Colors.red; // Default color for unknown status
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(topRight: Radius.circular(8),topLeft: Radius.circular(8)),
-          border: Border.all(width: 1,color: Colors.black26),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.black12),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.only(top: 10,bottom: 16,left: 16,right: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -76,110 +60,68 @@ class TodoItemWidget extends StatelessWidget {
                     child: Text(
                       title['title'] ?? 'No Title',
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Colors.black,
                       ),
                       overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
+                      maxLines: 1,
                     ),
                   ),
-                  const Spacer(),
                   GestureDetector(
                     onTap: onStatusTap,
-                    child: _buildInfoChip1(
-                      null,
-                      status.replaceAll('_', ' ').capitalizeFirst ?? '',
-                      _getStatusColor1(status),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color:Colors.black,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            status.replaceAll('_', ' ',).capitalizeFirst ?? '',
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white),
+                          ),
+                          SizedBox(width: 10,),
+                          Icon(Icons.keyboard_arrow_down,color: Colors.white,)
+                        ],
+                      ),
                     ),
                   ),
-                  SizedBox(width: 5,),
-                    ],
+                   SizedBox(width: 5),
+                   Icon(Icons.more_vert, color: Colors.black),
+                ],
               ),
               const SizedBox(height: 6),
-              Wrap(
-                spacing: 14,
+              Row(
                 children: [
-                  _buildInfoChip1(
-                    Icons.calendar_today,
-                    "Deadline: ${formatDate(deadline)}",  // Now it shows only the date
-                    Colors.white,
-                    forceWhiteBackground: true,
+                  const Icon(Icons.calendar_today,
+                      size: 14, color: Colors.black54),
+                  const SizedBox(width: 4),
+                  Text(
+                    " ${formatDate(deadline)}",
+                    style: const TextStyle(
+                        fontSize: 12, color: Colors.black54),
                   ),
-                  _buildInfoChip1(
-                    Icons.flag,
-                    priority.capitalizeFirst ?? '',
-                    Colors.white,
-                    forceWhiteBackground: true,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      priority.capitalizeFirst ?? '',
+                      style: const TextStyle(
+                          fontSize: 12, color: Colors.black54),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                (description.isEmpty)
-                    ? "No description Found"
-                    : description.capitalizeFirst ?? '',
-                style: const TextStyle(fontSize: 13, color: Colors.black87),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              if (attachments != null && attachments!.isNotEmpty)
-                _buildAttachments(),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildAttachments() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children:
-          attachments!.map((attachment) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.attach_file,
-                    size: 16,
-                    color: Colors.black87,
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      if (attachment is String &&
-                          Uri.parse(attachment).isAbsolute) {
-                        _launchURL(attachment);
-                      }
-                    },
-                    child: Text(
-                      attachment.toString(),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-    );
-  }
-
-  Widget _buildInfoChip1(IconData? icon, String label, Color statusColor, {bool forceWhiteBackground = false}) {
-    return Chip(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      backgroundColor: forceWhiteBackground ? Colors.white : statusColor, // <-- New logic
-      avatar: icon != null ? Icon(icon, size: 16, color: Colors.black) : null,
-      label: Text(
-        label,
-        style: const TextStyle(fontSize: 12, color: Colors.black),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
     );
   }
 }

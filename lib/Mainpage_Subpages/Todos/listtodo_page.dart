@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../All_custom_widgets/Ttodolist_Custom.dart';
 import '../../Controller/Todos contoller/Ttodostatus_controller.dart';
 import '../../Controller/Todos contoller/ttodo_controller.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'AddTodo_page.dart';
 import 'detailtodo_page.dart';
@@ -11,12 +10,17 @@ import 'detailtodo_page.dart';
 class ListTodoPage extends StatelessWidget {
   ListTodoPage({super.key});
   final TodoController todoController = Get.put(TodoController());
-  final statusController = Get.find<TodoStatusController>(); // ✔️ used where needed
+  final statusController = Get.find<TodoStatusController>();
+
+  final RxBool _initialized = false.obs;
 
   @override
   Widget build(BuildContext context) {
-    todoController.fetchTodos();
-    statusController.fetchStatuses();
+    if (!_initialized.value) {
+      todoController.fetchTodos();
+      statusController.fetchStatuses();
+      _initialized.value = true;
+    }
 
     final double height = MediaQuery.of(context).size.height;
 
@@ -47,7 +51,7 @@ class ListTodoPage extends StatelessWidget {
                   horizontal: height * 0.020,
                 ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topRight: Radius.circular(8),
                     topLeft: Radius.circular(8),
                   ),
@@ -55,12 +59,9 @@ class ListTodoPage extends StatelessWidget {
                 ),
                 child: TabBar(
                   isScrollable: false,
-                  dividerColor: Colors.transparent,
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 8),
                   labelColor: Colors.blue,
                   unselectedLabelColor: Colors.black,
                   indicatorColor: Colors.blue,
-                  //indicatorSize: TabBarIndicatorSize.tab,
                   tabs: [
                     _buildTab("Pending", status['pending']),
                     _buildTab("In Progress", status['in_progress']),
@@ -102,24 +103,25 @@ class ListTodoPage extends StatelessWidget {
 
                               return GestureDetector(
                                 onTap: () async {
-                                  // Show circular loading indicator
                                   Get.dialog(
-                                    const Center(child: CircularProgressIndicator()),
+                                    const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
                                     barrierDismissible: false,
                                   );
 
-                                  // Simulate loading or data preparation (optional)
-                                  await Future.delayed(const Duration(milliseconds: 500));
-
-                                  // Hide loading dialog
+                                  await Future.delayed(
+                                    const Duration(milliseconds: 500),
+                                  );
                                   Get.back();
 
-                                  // Navigate to detail page
                                   Get.to(
-                                        () => TodoDetailPage(
+                                    () => TodoDetailPage(
                                       id: item['id'].toString(),
                                       todo: item,
-                                      notes: List<Map<String, dynamic>>.from(item['notes']),
+                                      notes: List<Map<String, dynamic>>.from(
+                                        item['notes'],
+                                      ),
                                     ),
                                   );
                                 },
@@ -130,7 +132,7 @@ class ListTodoPage extends StatelessWidget {
                                   deadline: item['due_date'] ?? '',
                                   description: item['description'] ?? '',
                                   onStatusTap: () {
-                                    _showStatusDialog(context, item);
+                                    showStatusBottomSheet(context, item);
                                   },
                                   item: item,
                                 ),
@@ -147,12 +149,10 @@ class ListTodoPage extends StatelessWidget {
         floatingActionButton: Container(
           width: 60,
           height: 60,
-
           child: FloatingActionButton(
-
             backgroundColor: Colors.blue,
             onPressed: () {
-              Get.to(() => AddtodoPage()); // Navigate with GetX
+              Get.to(() => AddtodoPage());
             },
             child: const Icon(Icons.add, color: Colors.black, size: 28),
           ),
@@ -178,7 +178,6 @@ class ListTodoPage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
@@ -189,7 +188,6 @@ class ListTodoPage extends StatelessWidget {
                 child: Text(
                   "${count ?? 0}",
                   style: const TextStyle(fontSize: 12),
-                  maxLines: 1,
                 ),
               ),
             ),
@@ -199,109 +197,64 @@ class ListTodoPage extends StatelessWidget {
     );
   }
 
-  void _showStatusDialog(BuildContext context, Map<String, dynamic> todo) {
-    final RxString selectedStatus = RxString(todo['status'] ?? '');
-    final currentStatus = todo['status'];
-    final RxBool isLoading = RxBool(false);  // Observable to control loading state
+  void showStatusBottomSheet(BuildContext context, Map<String, dynamic> todo) {
+    final String currentStatus = todo['status'] ?? '';
 
-    Get.dialog(
-      AlertDialog(
-        title: const Text("Change Todo Status"),
-        content: Obx(() {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: statusController.statusList.map((status) {
-              final isSelected = selectedStatus.value == status['value'];
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: GestureDetector(
-                  onTap: () {
-                    selectedStatus.value = status['value'];
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 16,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Colors.blue.shade100
-                          : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSelected ? Colors.blue : Colors.grey.shade300,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          status['label'],
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: isSelected ? Colors.blue : Colors.black87,
-                          ),
-                        ),
-                        if (isSelected)
-                          const Icon(
-                            Icons.check_circle,
-                            color: Colors.blue,
-                          ),
-                      ],
-                    ),
-                  ),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (_) {
+        return Obx(
+          () => Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Update Status',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-              );
-            }).toList(),
-          );
-        }),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text("Cancel")),
-          Container(
-            height: 40,
-            width: 80,
-            margin: const EdgeInsets.only(top: 10),
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: InkWell(
-              onTap: () async {
-                if (selectedStatus.value != currentStatus) {
-                  // Show loading indicator
-                  isLoading.value = true;
+                const SizedBox(height: 10),
+                const Divider(),
+                ...statusController.statusList.map((status) {
+                  final bool isCurrent = currentStatus == status['value'];
+                  return Column(
+                    children: [
+                      ListTile(
+                        // tileColor: isCurrent ? Colors.grey.shade200 : null,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        title: Text(status['label']),
+                        onTap: () async {
+                          if (!isCurrent) {
+                            statusController.selectedStatus.value = status;
 
-                  // Update status
-                  statusController.selectedStatus.value = statusController
-                      .statusList
-                      .firstWhere(
-                        (status) => status['value'] == selectedStatus.value,
-                    orElse: () => {},
+                            Navigator.pop(context); // Close sheet immediately
+
+                            await statusController.updateTodoStatus(
+                              todo['uuid'],
+                            );
+                            await todoController.fetchTodos(); // Refresh todos
+                          } else {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
+                      const Divider(height: 1),
+                    ],
                   );
-                  await statusController.updateTodoStatus(todo['uuid']);
-
-                  // Hide loading indicator and refresh todo list
-                  isLoading.value = false;
-                  Navigator.pop(context);
-
-                  // Refresh todo list (this might depend on your existing logic)
-                  todoController.fetchTodos();
-                }
-              },
-              child: Center(
-                child: isLoading.value
-                    ? const CircularProgressIndicator(
-                  color: Colors.transparent,
-                )
-                    : const Text("Save"),
-              ),
+                }).toList(),
+                const SizedBox(height: 10),
+              ],
             ),
           ),
-        ],
-      ),
-      barrierDismissible: false,
+        );
+      },
     );
   }
 }

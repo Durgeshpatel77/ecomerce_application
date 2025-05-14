@@ -114,7 +114,7 @@ class TasklistCustom extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.black12),
           ),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(top: 10,bottom: 16,left: 16,right: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -151,11 +151,12 @@ class TasklistCustom extends StatelessWidget {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    SizedBox(height: 15,),
                                     const Text(
                                       'Update Status',
                                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                     ),
-                                    const SizedBox(height: 30),
+                                    SizedBox(height: 15,),
                                     Divider(),
                                     ...statusController.statusList.map((s) {
                                       return Column(
