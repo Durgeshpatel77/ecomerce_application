@@ -128,13 +128,10 @@ class ListTodoPage extends StatelessWidget {
                                 child: TodoItemWidget(
                                   title: item,
                                   status: item['status'] ?? '',
-                                  priority: item['priority'] ?? '',
                                   deadline: item['due_date'] ?? '',
-                                  description: item['description'] ?? '',
                                   onStatusTap: () {
                                     showStatusBottomSheet(context, item);
                                   },
-                                  item: item,
                                 ),
                               );
                             },

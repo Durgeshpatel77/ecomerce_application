@@ -159,7 +159,7 @@ class TasklistPage extends StatelessWidget {
                                     status: task['status']?.toString() ?? 'Unknown',
                                     deadline: task['deadline']?.toString() ?? '',
                                     taskId: task['id']?.toString() ?? '',
-                                    assignedTo: task['assign_to']?['name']?.toString() ?? '', // <-- update this line
+                                    createdBy: task['created_user']?['name']?.toString() ?? 'Unknown',
                                   ),
                                 );
                               },

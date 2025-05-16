@@ -17,7 +17,12 @@ class TodoDetailPage extends StatelessWidget {
   final Map<String, dynamic> todo;
   final List<Map<String, dynamic>> notes;
 
-  const TodoDetailPage({Key? key, required this.id, required this.todo, required this.notes}) : super(key: key);
+  const TodoDetailPage({
+    Key? key,
+    required this.id,
+    required this.todo,
+    required this.notes,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +37,7 @@ class TodoDetailPage extends StatelessWidget {
       if (value == null) return '';
       return value.replaceAll('_', ' ').capitalizeFirst ?? '';
     }
+
     Future<void> _deleteNote(int noteId) async {
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('access_token') ?? '';
@@ -46,30 +52,25 @@ class TodoDetailPage extends StatelessWidget {
         elevation: 1,
         backgroundColor: Colors.transparent,
         flexibleSpace: Container(
-          decoration: BoxDecoration(
-            color: Colors.white
-          ),
+          decoration: BoxDecoration(color: Colors.white),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
-          onPressed: () async {
-            final prefs = await SharedPreferences.getInstance();
-            final authToken = prefs.getString('access_token') ?? '';
-            final uuid = todo['uuid']; // todo is accessible because it's a class member
+        onPressed: () async {
+          final prefs = await SharedPreferences.getInstance();
+          final authToken = prefs.getString('access_token') ?? '';
+          final uuid =
+              todo['uuid']; // todo is accessible because it's a class member
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddNotes(
-                  uuid: uuid,
-                  authToken: authToken,
-                ),
-              ),
-            );
-
-          },
-        child: const Icon(Icons.add,size: 32,),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddNotes(uuid: uuid, authToken: authToken),
+            ),
+          );
+        },
+        child: const Icon(Icons.add, size: 32),
       ),
       backgroundColor: Colors.white,
       body: Obx(() {
@@ -90,8 +91,11 @@ class TodoDetailPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
-                    border: Border.all(color: Colors.black38,width: 1)
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                  ),
+                  border: Border.all(color: Colors.black38, width: 1),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,8 +142,16 @@ class TodoDetailPage extends StatelessWidget {
                           spacing: 10,
                           runSpacing: 8,
                           children: [
-                            _pillChip1("Status", _format(todo['status']), Colors.teal),
-                            _pillChip1("Priority", _format(todo['priority']), Colors.deepOrange),
+                            _pillChip1(
+                              "Status",
+                              _format(todo['status']),
+                              Colors.teal,
+                            ),
+                            _pillChip1(
+                              "Priority",
+                              _format(todo['priority']),
+                              Colors.deepOrange,
+                            ),
                           ],
                         ),
                       ],
@@ -210,8 +222,11 @@ class TodoDetailPage extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
-                    border: Border.all(color: Colors.black38,width: 1)
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                  ),
+                  border: Border.all(color: Colors.black38, width: 1),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,7 +240,8 @@ class TodoDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      (todo['description'] != null && todo['description'].toString().trim().isNotEmpty)
+                      (todo['description'] != null &&
+                              todo['description'].toString().trim().isNotEmpty)
                           ? todo['description']
                           : "No description found",
                       style: const TextStyle(fontSize: 16),
@@ -243,11 +259,13 @@ class TodoDetailPage extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
-                        border: Border.all(color: Colors.black38,width: 1)
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
+                      border: Border.all(color: Colors.black38, width: 1),
                     ),
-                    child:
-                    Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
@@ -261,126 +279,184 @@ class TodoDetailPage extends StatelessWidget {
                         if (attachments != null && attachments.isNotEmpty)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: attachments.map<Widget>((attachment) {
-                              final fileUrl = attachment['image_url'] ?? '';
-                              final fileName = attachment['file_name'] ?? 'Unknown';
-                              final fileType = attachment['file_type']?.toLowerCase() ?? 'unknown';
+                            children:
+                                attachments.map<Widget>((attachment) {
+                                  final fileUrl = attachment['image_url'] ?? '';
+                                  final fileName =
+                                      attachment['file_name'] ?? 'Unknown';
+                                  //final fileType = attachment['file_type']?.toLowerCase() ?? 'unknown';
 
-                              final uri = Uri.parse(fileUrl);
-                              final extension = uri.pathSegments.isNotEmpty
-                                  ? uri.pathSegments.last.split('.').last.toLowerCase()
-                                  : 'unknown';
+                                  final uri = Uri.parse(fileUrl);
+                                  final extension =
+                                      uri.pathSegments.isNotEmpty
+                                          ? uri.pathSegments.last
+                                              .split('.')
+                                              .last
+                                              .toLowerCase()
+                                          : 'unknown';
 
-                              return GestureDetector(
-                                onTap: () {
-                                  if (['jpg', 'jpeg', 'png'].contains(extension)) {
-                                    Get.dialog(
-                                      Dialog(
-                                        child: Container(
-                                          padding: const EdgeInsets.all(12),
-                                          child: Image.network(
-                                            fileUrl,
-                                            fit: BoxFit.contain,
-                                            loadingBuilder: (context, child, loadingProgress) {
-                                              if (loadingProgress == null) return child;
-                                              return SizedBox(
-                                                height: 300,
-                                                child: Center(
-                                                  child: CircularProgressIndicator(
-                                                    value: loadingProgress.expectedTotalBytes != null
-                                                        ? loadingProgress.cumulativeBytesLoaded /
-                                                        (loadingProgress.expectedTotalBytes!)
-                                                        : null,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            errorBuilder: (context, error, stackTrace) => const Center(
-                                              child: Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                                  return GestureDetector(
+                                    onTap: () {
+                                      if ([
+                                        'jpg',
+                                        'jpeg',
+                                        'png',
+                                      ].contains(extension)) {
+                                        Get.dialog(
+                                          Dialog(
+                                            child: Container(
+                                              padding: const EdgeInsets.all(12),
+                                              child: Image.network(
+                                                fileUrl,
+                                                fit: BoxFit.contain,
+                                                loadingBuilder: (
+                                                  context,
+                                                  child,
+                                                  loadingProgress,
+                                                ) {
+                                                  if (loadingProgress == null)
+                                                    return child;
+                                                  return SizedBox(
+                                                    height: 300,
+                                                    child: Center(
+                                                      child: CircularProgressIndicator(
+                                                        value:
+                                                            loadingProgress
+                                                                        .expectedTotalBytes !=
+                                                                    null
+                                                                ? loadingProgress
+                                                                        .cumulativeBytesLoaded /
+                                                                    (loadingProgress
+                                                                        .expectedTotalBytes!)
+                                                                : null,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                errorBuilder:
+                                                    (
+                                                      context,
+                                                      error,
+                                                      stackTrace,
+                                                    ) => const Center(
+                                                      child: Icon(
+                                                        Icons.broken_image,
+                                                        size: 60,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                    );
-                                  } else if (extension == 'pdf') {
-                                    Get.dialog(
-                                      Dialog(
-                                        child: SizedBox(
-                                          width: 300,
-                                          height: 400,
-                                          child: SfPdfViewer.network(fileUrl),
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    Get.snackbar(
-                                      "Preview not supported",
-                                      "Cannot preview .$extension files.",
-                                        backgroundColor: Colors.red,
-                                        snackPosition: SnackPosition.BOTTOM,
-                                        icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
-                                        duration: Duration(seconds: 2),
-                                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
-                                        colorText: Colors.white
-                                    );
-                                  }
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 6),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(width: 1,color: Colors.black26),
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.attach_file, color: Colors.black87),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              fileName,
-                                              style: const TextStyle(
-                                                color: Colors.black87,
-                                                fontWeight: FontWeight.w600,
+                                        );
+                                      } else if (extension == 'pdf') {
+                                        Get.dialog(
+                                          Dialog(
+                                            child: SizedBox(
+                                              width: 300,
+                                              height: 400,
+                                              child: SfPdfViewer.network(
+                                                fileUrl,
                                               ),
                                             ),
-                                            Text(
-                                              "Extension: .$extension",
-                                              style: const TextStyle(
-                                                color: Colors.black54,
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ],
+                                          ),
+                                        );
+                                      } else {
+                                        Get.snackbar(
+                                          "Preview not supported",
+                                          "Cannot preview .$extension files.",
+                                          backgroundColor: Colors.red,
+                                          snackPosition: SnackPosition.BOTTOM,
+                                          icon: Icon(
+                                            Icons.cancel,
+                                            size: 33,
+                                            color: Colors.white,
+                                          ),
+                                          duration: Duration(seconds: 2),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 12,
+                                            horizontal: 20,
+                                          ), // Custom padding
+                                          colorText: Colors.white,
+                                        );
+                                      }
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        vertical: 6,
+                                      ),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          width: 1,
+                                          color: Colors.black26,
                                         ),
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.05,
+                                            ),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
                                       ),
-                                      IconButton(
-                                        icon: const Icon(Icons.download_rounded, color: Colors.black),
-                                        onPressed: () async {
-                                          await downloadFile(fileUrl, fileName);
-                                        },
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.attach_file,
+                                            color: Colors.black87,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  fileName,
+                                                  style: const TextStyle(
+                                                    color: Colors.black87,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  "Extension: .$extension",
+                                                  style: const TextStyle(
+                                                    color: Colors.black54,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.download_outlined,
+                                              color: Colors.black,
+                                            ),
+                                            onPressed: () async {
+                                              await downloadFile(
+                                                fileUrl,
+                                                fileName,
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                                    ),
+                                  );
+                                }).toList(),
                           )
                         else
                           const Text(
                             "No attachment found",
-                            style: TextStyle(fontSize: 16, fontStyle: FontStyle.normal),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontStyle: FontStyle.normal,
+                            ),
                           ),
                       ],
                     ),
@@ -394,11 +470,14 @@ class TodoDetailPage extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
-                      border: Border.all(color: Colors.black38,width: 1)
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
+                      border: Border.all(color: Colors.black38, width: 1),
+                      color: Colors.white,
                     ),
-                    child:
-                    Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
@@ -408,109 +487,158 @@ class TodoDetailPage extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 16),
                         if (notes.isNotEmpty)
                           Column(
-                            children: notes.map<Widget>((note) {
-                              final content = note['content'] ?? '';
-                              final email = note['user']['email'] ?? '';
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  border: Border.all(width: 1,color: Colors.black26),
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.white,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      capitalizeFirst(content),
-                                      style: const TextStyle(fontSize: 16),
+                            children:
+                                notes.map<Widget>((note) {
+                                  final content = note['content'] ?? '';
+                                  final name = note['user']['name'] ?? '';
+
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        width: 1,
+                                        color: Colors.black26,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.white,
                                     ),
-                                    const SizedBox(height: 8),
-                                    Row(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                capitalizeFirst(name),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ),
+                                            IconButton(
+                                              padding: EdgeInsets.zero,
+                                              icon: const Icon(
+                                                Icons.delete,
+                                                color: Colors.red,
+                                              ),
+                                              onPressed: () {
+                                                Get.defaultDialog(
+                                                  backgroundColor: Colors.white,
+                                                  title: "Delete Note",
+                                                  middleText:
+                                                      "Are you sure you want to delete this note?",
+                                                  textCancel: "Cancel",
+                                                  textConfirm: "Delete",
+                                                  confirmTextColor:
+                                                      Colors.white,
+                                                  buttonColor: Colors.red,
+                                                  onConfirm: () async {
+                                                    Get.back(); // Close dialog
+
+                                                    Get.dialog(
+                                                      const Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      ),
+                                                      barrierDismissible: false,
+                                                    );
+
+                                                    final prefs =
+                                                        await SharedPreferences.getInstance();
+                                                    final authToken =
+                                                        prefs.getString(
+                                                          'access_token',
+                                                        ) ??
+                                                        '';
+
+                                                    final success =
+                                                        await noteController
+                                                            .deleteNoteById(
+                                                              note['id'],
+                                                              authToken,
+                                                            );
+
+                                                    Get.back(); // Close loading
+
+                                                    if (success) {
+                                                      final notes =
+                                                          controller
+                                                              .todoDetail['notes'];
+                                                      if (notes is List) {
+                                                        notes.removeWhere(
+                                                          (n) =>
+                                                              n['id'] ==
+                                                              note['id'],
+                                                        );
+                                                        controller
+                                                                .todoDetail['notes'] =
+                                                            notes;
+                                                        controller.todoDetail
+                                                            .refresh(); // Notify UI
+                                                      }
+                                                    } else {
+                                                      Get.defaultDialog(
+                                                        title: "Error",
+                                                        middleText:
+                                                            "Failed to delete the note.",
+                                                        textConfirm: "OK",
+                                                        confirmTextColor:
+                                                            Colors.white,
+                                                        buttonColor: Colors.red,
+                                                        onConfirm:
+                                                            () => Get.back(),
+                                                      );
+                                                    }
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      //  const SizedBox(height: 8),
                                         Text(
-                                          capitalizeFirst(email),
+                                          capitalizeFirst(content),
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15.5,
+                                            height: 1.4,
+                                            color: Colors.black87,
                                           ),
                                         ),
-                                        Spacer(),
-                                        IconButton(
-                                          icon: Icon(Icons.delete),
-                                          onPressed: () {
-                                            Get.defaultDialog(
-                                              backgroundColor: Colors.white,
-
-                                              title: "Delete Note",
-                                              middleText: "Are you sure you want to delete this note?",
-                                              textCancel: "Cancel",
-                                              textConfirm: "Delete",
-
-                                              confirmTextColor: Colors.white,
-                                              buttonColor: Colors.red,
-                                              onConfirm: () async {
-                                                Get.back(); // Close dialog
-
-                                                Get.dialog(
-                                                  Center(child: CircularProgressIndicator()),
-                                                  barrierDismissible: false,
-                                                );
-
-                                                final prefs = await SharedPreferences.getInstance();
-                                                final authToken = prefs.getString('access_token') ?? '';
-
-                                                final success = await noteController.deleteNoteById(note['id'], authToken);
-
-                                                Get.back(); // Close loading
-
-                                                if (success) {
-                                                  // Remove note from todoDetail
-                                                  final notes = controller.todoDetail['notes'];
-                                                  if (notes is List) {
-                                                    notes.removeWhere((n) => n['id'] == note['id']);
-                                                    controller.todoDetail['notes'] = notes;
-                                                    controller.todoDetail.refresh(); // Notify UI
-                                                  }
-                                                } else {
-                                                  Get.defaultDialog(
-                                                    title: "Error",
-                                                    middleText: "Failed to delete the note.",
-                                                    textConfirm: "OK",
-                                                    confirmTextColor: Colors.white,
-                                                    buttonColor: Colors.red,
-                                                    onConfirm: () => Get.back(),
-                                                  );
-                                                }
-                                              },
-                                            );
-                                          },
-                                        )
+                                        const SizedBox(height: 8),
+                                        FormattedDateTimeText(
+                                          isoString: note['created_at'],
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                    const SizedBox(height: 8),
-                                    FormattedDateTimeText(
-                                      isoString: note['created_at'],
-                                      style: const TextStyle(fontSize: 14, color: Colors.black),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
+                                  );
+                                }).toList(),
                           )
                         else
-                          const Text(
-                            "No notes found.",  // Display this when notes are empty
-                            style: TextStyle(fontSize: 16),
+                          const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: Text(
+                              "No notes found.",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black54,
+                              ),
+                            ),
                           ),
                       ],
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         );
@@ -538,22 +666,32 @@ Future<void> downloadFile(String url, String filename) async {
     );
 
     await _scanFile(filePath);
-    Get.snackbar('Download Complete', 'Saved to: $filePath',
-        backgroundColor: Colors.green,
-        snackPosition: SnackPosition.BOTTOM,
-        icon: Icon(Icons.check_circle, size: 33,color: Colors.white,),
-        duration: Duration(seconds: 2),
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
-        colorText: Colors.white
+    Get.snackbar(
+      'Download Complete',
+      'Saved to: $filePath',
+      backgroundColor: Colors.green,
+      snackPosition: SnackPosition.BOTTOM,
+      icon: Icon(Icons.check_circle, size: 33, color: Colors.white),
+      duration: Duration(seconds: 2),
+      padding: EdgeInsets.symmetric(
+        vertical: 12,
+        horizontal: 20,
+      ), // Custom padding
+      colorText: Colors.white,
     );
   } catch (e) {
-    Get.snackbar('Download Failed', e.toString(),
-        backgroundColor: Colors.red,
-        snackPosition: SnackPosition.BOTTOM,
-        icon: Icon(Icons.cancel, size: 33,color: Colors.white,),
-        duration: Duration(seconds: 2),
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),  // Custom padding
-        colorText: Colors.white
+    Get.snackbar(
+      'Download Failed',
+      e.toString(),
+      backgroundColor: Colors.red,
+      snackPosition: SnackPosition.BOTTOM,
+      icon: Icon(Icons.cancel, size: 33, color: Colors.white),
+      duration: Duration(seconds: 2),
+      padding: EdgeInsets.symmetric(
+        vertical: 12,
+        horizontal: 20,
+      ), // Custom padding
+      colorText: Colors.white,
     );
   }
 }
@@ -566,10 +704,12 @@ Future<void> _scanFile(String filePath) async {
     print("Error scanning file: $e");
   }
 }
+
 String capitalizeFirst(String text) {
   if (text.isEmpty) return text;
   return text[0].toUpperCase() + text.substring(1);
 }
+
 Widget _pillChip1(String label, String value, Color color) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -584,17 +724,11 @@ Widget _pillChip1(String label, String value, Color color) {
         const SizedBox(width: 6),
         Text(
           "$label: ",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: color),
         ),
         Text(
           value,
-          style: TextStyle(
-            fontWeight: FontWeight.normal,
-            color: color,
-          ),
+          style: TextStyle(fontWeight: FontWeight.normal, color: color),
         ),
       ],
     ),
@@ -612,10 +746,7 @@ Widget _buildTodoLabelChips(Map<String, dynamic> todo) {
     children: [
       const Text(
         "Task Info",
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
       const SizedBox(height: 10),
       Wrap(
@@ -629,6 +760,7 @@ Widget _buildTodoLabelChips(Map<String, dynamic> todo) {
     ],
   );
 }
+
 String capitalize(String text) {
   if (text.isEmpty) return text;
   return text[0].toUpperCase() + text.substring(1);

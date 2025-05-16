@@ -1,29 +1,26 @@
+import 'package:ecomerce_application/Mainpage_Subpages/Todos/detailtodo_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../Controller/Todos contoller/ttodo_controller.dart';
+
 class TodoItemWidget extends StatelessWidget {
   final Map<String, dynamic> title;
   final String status;
-  final String priority;
   final String deadline;
-  final String description;
   final VoidCallback onStatusTap;
-  final Map<String, dynamic> item;
-  final List<dynamic>? attachments;
 
-  const TodoItemWidget({
+   TodoItemWidget({
     Key? key,
     required this.title,
     required this.status,
-    required this.priority,
     required this.deadline,
-    required this.description,
     required this.onStatusTap,
-    required this.item,
-    this.attachments,
+
   }) : super(key: key);
+  final TodoController todoController = Get.put(TodoController());
 
   void _launchURL(String url) async {
     final uri = Uri.parse(url);
@@ -33,10 +30,13 @@ class TodoItemWidget extends StatelessWidget {
       throw 'Could not launch $url';
     }
   }
-
   String formatDate(String deadline) {
-    DateTime dateTime = DateFormat("yyyy-MM-dd hh:mm a").parse(deadline);
-    return DateFormat("dd/MM/yyyy").format(dateTime);
+    try {
+      DateTime dateTime = DateFormat("yyyy-MM-dd hh:mm a").parse(deadline);
+      return DateFormat("dd/MM/yyyy hh:mm a").format(dateTime);
+    } catch (e) {
+      return deadline; // fallback if parsing fails
+    }
   }
 
   @override
@@ -93,8 +93,110 @@ class TodoItemWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                   SizedBox(width: 5),
-                   Icon(Icons.more_vert, color: Colors.black),
+                 //  SizedBox(width: 5),
+                  PopupMenuButton<String>(
+                    padding: EdgeInsets.only(left: 20),
+                    icon: const Icon(Icons.more_vert, color: Colors.black),
+                    onSelected: (value) {
+                      final todoId = title['id']?.toString() ?? '';
+
+                      if (value == 'view') {
+                        Get.to(() => TodoDetailPage(
+                          id: todoId,
+                          todo: title,
+                          notes: (title['notes'] as List?)?.cast<Map<String, dynamic>>() ?? [],
+                        ));
+                      } else if (value == 'edit') {
+                        // TODO: Implement edit logic
+                      }
+                      else if (value == 'delete') {
+                        Get.defaultDialog(
+                          title: 'Delete Todo',
+                          titleStyle: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red.shade700,
+                          ),
+                          middleText: 'Are you sure you want to delete this todo?',
+                          middleTextStyle: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                          backgroundColor: Colors.white,
+                          radius: 15,
+                          barrierDismissible: false,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+
+                          // Use custom cancel button with reduced border radius
+                          cancel: OutlinedButton(
+                            onPressed: () => Get.back(),
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6), // less rounded
+                              ),
+                              side: BorderSide(color: Colors.grey.shade700),
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                            ),
+                          ),
+
+                          // Use custom confirm button with reduced border radius
+                          confirm: ElevatedButton(
+                            onPressed: () {
+                              Get.back();
+                              Get.find<TodoController>().deleteTodo(todoId);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6), // less rounded
+                              ),
+                              backgroundColor: Colors.red.shade600,
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            ),
+                            child: Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'view',
+                        child: Row(
+                          children: [
+                            Icon(Icons.visibility, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('View Detail'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, color: Colors.black54),
+                            SizedBox(width: 8),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Delete',style: TextStyle(color: Colors.red),),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
@@ -104,16 +206,18 @@ class TodoItemWidget extends StatelessWidget {
                       size: 14, color: Colors.black54),
                   const SizedBox(width: 4),
                   Text(
-                    " ${formatDate(deadline)}",
+                    "${formatDate(deadline)}",
                     style: const TextStyle(
                         fontSize: 12, color: Colors.black54),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      priority.capitalizeFirst ?? '',
+                      "By ${title['created_user']?['name'] ?? 'Unknown'}",
                       style: const TextStyle(
                           fontSize: 12, color: Colors.black54),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],

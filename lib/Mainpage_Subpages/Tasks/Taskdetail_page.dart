@@ -120,7 +120,12 @@ class TaskDetailPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                      )
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 15),
+                        child: Icon(Icons.delete),
+                      ),
+
                     ],
                   ),
                 );
@@ -253,7 +258,7 @@ class TaskDetailPage extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.download_rounded, color: Colors.black),
+                    icon: const Icon(Icons.download_outlined, color: Colors.black),
                     onPressed: () async {
                       await downloadFile(fileUrlStr, filename);
                     },
@@ -378,7 +383,6 @@ class TaskDetailPage extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-
       decoration: _commonCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

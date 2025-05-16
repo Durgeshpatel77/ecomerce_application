@@ -105,6 +105,53 @@ class TodoController extends GetxController {
       isLoading.value = false;
     }
   }
+  Future<void> deleteTodo(String id) async {
+    isLoading.value = true;
+
+    try {
+      final token = await authController.getToken();
+      if (token == null || token.isEmpty) {
+        _showTokenError();
+        return;
+      }
+
+      final url = Uri.parse("https://inagold.in/api/todos/$id");
+
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': token,
+          'Accept': 'application/json',
+        },
+      );
+
+      print("Delete todo response code: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        todoList.removeWhere((todo) => todo["id"].toString() == id);
+        todoList.refresh();
+        Get.snackbar(
+          "Success",
+          "Todo deleted successfully",
+            backgroundColor: Colors.green,
+            snackPosition: SnackPosition.BOTTOM,
+            icon: Icon(Icons.check_circle_outline, size: 33, color: Colors.white),
+            duration: Duration(seconds: 2),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+            colorText: Colors.white
+        );
+        await fetchTodos();
+
+      } else {
+        _showError("Failed to delete todo. Status Code: ${response.statusCode}");
+      }
+    } catch (e) {
+      _showError("An error occurred while deleting todo: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
 
   void _showError(String message) {
     Get.snackbar(
