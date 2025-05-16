@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../Controller/Todos contoller/Add_notes_controller.dart';
-import '../../Controller/Todos contoller/Ttodostatus_controller.dart';
+
+import '../../Controller/Todos controller/Add_notes_controller.dart';
+import '../../Controller/Todos controller/Ttodostatus_controller.dart';
 
 class AddNotes extends StatelessWidget {
   final String uuid; // Pass the task UUID

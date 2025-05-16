@@ -7,9 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../All_custom_widgets/FormattedDateTime_custom.dart';
-import '../../Controller/Todos contoller/Add_notes_controller.dart';
-import '../../Controller/Todos contoller/Delete_notes.dart';
-import '../../Controller/Todos contoller/ttodo_controller.dart';
+import '../../Controller/Todos controller/Delete_notes.dart';
+import '../../Controller/Todos controller/ttodo_controller.dart';
 import 'Add_notes.dart';
 
 class TodoDetailPage extends StatelessWidget {

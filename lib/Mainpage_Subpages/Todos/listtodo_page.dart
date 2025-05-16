@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../All_custom_widgets/Ttodolist_Custom.dart';
-import '../../Controller/Todos contoller/Ttodostatus_controller.dart';
-import '../../Controller/Todos contoller/ttodo_controller.dart';
 
+import '../../Controller/Todos controller/Ttodostatus_controller.dart';
+import '../../Controller/Todos controller/ttodo_controller.dart';
 import 'AddTodo_page.dart';
 import 'detailtodo_page.dart';
 
@@ -206,7 +206,7 @@ class ListTodoPage extends StatelessWidget {
       backgroundColor: Colors.white,
       builder: (_) {
         return Obx(
-          () => Padding(
+              () => Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -222,23 +222,28 @@ class ListTodoPage extends StatelessWidget {
                   return Column(
                     children: [
                       ListTile(
-                        // tileColor: isCurrent ? Colors.grey.shade200 : null,
+                        tileColor: isCurrent ? Colors.green.withOpacity(0.1) : null,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        title: Text(status['label']),
+                        leading: isCurrent
+                            ? Icon(Icons.check_circle, color: Colors.green)
+                            : Icon(Icons.radio_button_unchecked, color: Colors.grey),
+                        title: Text(
+                          status['label'],
+                          style: TextStyle(
+                            color: isCurrent ? Colors.green : Colors.black,
+                            fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
                         onTap: () async {
                           if (!isCurrent) {
                             statusController.selectedStatus.value = status;
-
-                            Navigator.pop(context); // Close sheet immediately
-
-                            await statusController.updateTodoStatus(
-                              todo['uuid'],
-                            );
-                            await todoController.fetchTodos(); // Refresh todos
+                            Navigator.pop(context); // Close sheet
+                            await statusController.updateTodoStatus(todo['uuid']);
+                            await todoController.fetchTodos();
                           } else {
-                            Navigator.pop(context);
+                            Navigator.pop(context); // Close without update
                           }
                         },
                       ),

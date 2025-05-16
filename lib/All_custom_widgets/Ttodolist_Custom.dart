@@ -4,7 +4,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../Controller/Todos contoller/ttodo_controller.dart';
+import '../Controller/Todos controller/ttodo_controller.dart';
+
 
 class TodoItemWidget extends StatelessWidget {
   final Map<String, dynamic> title;

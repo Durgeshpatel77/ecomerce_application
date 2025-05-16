@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../Controller/Todos contoller/add_todo_controller.dart';
+import '../../Controller/Todos controller/add_todo_controller.dart';
 
 class AddtodoPage extends StatelessWidget {
   final AddTodoController controller = Get.put(AddTodoController());

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../Controller/Taskstatus_contoller.dart';
-import '../Controller/TaskList_Controller.dart';
+import '../Controller/Task controller/TaskList_Controller.dart';
+import '../Controller/Task controller/Taskstatus_contoller.dart';
 import '../Mainpage_Subpages/Tasks/Taskdetail_page.dart';
 
 class TasklistCustom extends StatelessWidget {
@@ -231,16 +231,6 @@ class TasklistCustom extends StatelessWidget {
                             Icon(Icons.visibility, color: Colors.black54),
                             SizedBox(width: 8),
                             Text('View Details'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit, color: Colors.black54),
-                            SizedBox(width: 8),
-                            Text('Edit'),
                           ],
                         ),
                       ),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Auth_Controller.dart';
+import '../Auth_Controller.dart';
 
 class TaskController extends GetxController with GetTickerProviderStateMixin {
   var taskList = <Map<String, dynamic>>[].obs;

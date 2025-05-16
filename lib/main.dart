@@ -5,11 +5,10 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart'; // 👈 import this
 
 import 'Controller/Auth_Controller.dart';
-import 'Controller/TaskList_Controller.dart';
-import 'Controller/Taskstatus_contoller.dart';
-import 'Controller/Todos contoller/Add_notes_controller.dart';
-import 'Controller/Todos contoller/Ttodostatus_controller.dart';
-import 'Controller/Todos contoller/ttodo_controller.dart';
+import 'Controller/Task controller/TaskList_Controller.dart';
+import 'Controller/Task controller/Taskstatus_contoller.dart';
+import 'Controller/Todos controller/Ttodostatus_controller.dart';
+import 'Controller/Todos controller/ttodo_controller.dart';
 import 'Controller/http_overrides.dart';
 import 'Splash_Screen.dart';
 
